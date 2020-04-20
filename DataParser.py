@@ -7,12 +7,28 @@ import os
 
 
 def main():
+    createDir()
     dataArray = readCsv()
     dataDictionary = groupByCountry(dataArray)
     print("We have " + str(len(dataDictionary)) + " countries loaded")
     plotData(dataDictionary)
     saveGroupedDataToCsv(dataDictionary)
 
+def createDir():
+    try:
+        os.mkdir("./out/")
+    except FileExistsError:
+        pass
+
+    try:
+        os.mkdir("./out/groupedData/")
+    except FileExistsError:
+        pass
+    
+    try:
+        os.mkdir("./out/caseNumberHistoryPerCountry/")
+    except FileExistsError:
+        pass
 
 def saveGroupedDataToCsv(groupedData):
     maxLength = len(groupedData)
