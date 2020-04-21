@@ -35,7 +35,12 @@ def saveGroupedDataToCsv(groupedData):
     progress = 1
     for countryKey in groupedData:
         printProgressBar(progress, maxLength, "Saving " + countryKey + ".csv")
-        csv_file = countryKey + ".csv"
+        csv_file = ""
+        if(countryKey == "N/A" or countryKey == ""):
+            csv_file = "NoCountryCode.csv"
+        else:
+            csv_file = countryKey + ".csv"
+
         try:
             with open("./out/groupedData/"+csv_file, 'w+') as csvfile:
                 writer = csv.DictWriter(csvfile, fieldnames=["dateRep", "day", "month", "year", "cases", "deaths",
@@ -64,10 +69,10 @@ def groupByCountry(dataArray):
     groupedDict = {}
     for row in dataArray:
         try:
-            groupedDict[row["geoId"]].append(row)
+            groupedDict[row["countryterritoryCode"]].append(row)
         except KeyError:
-            groupedDict[row["geoId"]] = []
-            groupedDict[row["geoId"]].append(row)
+            groupedDict[row["countryterritoryCode"]] = []
+            groupedDict[row["countryterritoryCode"]].append(row)
         except Exception:
             print("Error while grouping")
 
@@ -109,8 +114,12 @@ def plotData(dataDict):
         figure = plt.gcf()
         # manager.resize(*manager.window.maxsize())
         figure.set_size_inches(19.2, 10.8)
-        plt.savefig("./out/caseNumberHistoryPerCountry/" + countryKey +
-                    ".png", bbox_inches=Bbox(np.array([[0, 0], [19.2, 10.8]])))
+        if(countryKey == "N/A"):
+            plt.savefig("./out/caseNumberHistoryPerCountry/noCountryCode.png",
+                        bbox_inches=Bbox(np.array([[0, 0], [19.2, 10.8]])))
+        else:
+            plt.savefig("./out/caseNumberHistoryPerCountry/" + countryKey +
+                        ".png", bbox_inches=Bbox(np.array([[0, 0], [19.2, 10.8]])))
         plt.clf()
         progress += 1
 
