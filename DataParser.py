@@ -1,10 +1,20 @@
 import numpy as np
+from pytrends.request import TrendReq
 import csv
 import matplotlib.pyplot as plt
 from matplotlib.transforms import Bbox
 import datetime
 import os
+from datetime import datetime
 
+pytrend = TrendReq()
+
+def writeGoogleTrendsDataForCountry(geoId):
+    pytrend.build_payload(kw_list=['/m/01cpyy'], timeframe='2019-11-01 ' +
+                          datetime.now().strftime("%Y-%m-%d"), geo='DE')
+
+    interest_over_time_df = pytrend.interest_over_time()
+    interest_over_time_df("./dat/googleTrends/dailyInteressts/" + geoId + ".txt")
 
 def main():
     createDir()
