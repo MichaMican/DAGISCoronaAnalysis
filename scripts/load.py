@@ -1,5 +1,6 @@
 import os
 import csv
+import log
 
 def loadGoogleTrendsData():
     returnDict = {}
@@ -33,7 +34,7 @@ def loadCoronaCases():
         except KeyError:
             groupedDict[row["geoId"]] = []
             groupedDict[row["geoId"]].append(row)
-        except Exception:
-            print("Error while grouping")
+        except Exception as error:
+            log.logError("Error while grouping - Error: " + error)
 
     return groupedDict
