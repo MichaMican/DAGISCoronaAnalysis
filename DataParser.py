@@ -9,20 +9,35 @@ from datetime import datetime
 
 pytrend = TrendReq()
 
-def writeGoogleTrendsDataForCountry(geoId):
-    pytrend.build_payload(kw_list=['/m/01cpyy'], timeframe='2019-11-01 ' +
-                          datetime.now().strftime("%Y-%m-%d"), geo='DE')
-
-    interest_over_time_df = pytrend.interest_over_time()
-    interest_over_time_df("./dat/googleTrends/dailyInteressts/" + geoId + ".txt")
-
 def main():
     createDir()
     dataArray = readCsv()
     dataDictionary = groupByCountry(dataArray)
     print("We have " + str(len(dataDictionary)) + " countries loaded")
-    plotData(dataDictionary)
-    saveGroupedDataToCsv(dataDictionary)
+    #plotData(dataDictionary)
+    #saveGroupedDataToCsv(dataDictionary)
+    downloadAllGoogleTrendsData(dataDictionary)
+    
+
+def downloadAllGoogleTrendsData(dataDict):
+    maxLength = len(dataDict)
+    progress = 0
+    for countryKey in dataDict:
+        printProgressBar(progress, maxLength, "Downloading Google Trends data for " + countryKey)
+        geoId = dataDict[countryKey][0]["geoId"]
+        if(geoId != "" and geoId != None and geoId != "N/A"):
+            try:
+                downloadGoogleTrendsDataForCountry(dataDict[countryKey][0]["geoId"])
+            except Exception:
+                pass
+        progress += 1
+
+def downloadGoogleTrendsDataForCountry(geoId):
+    pytrend.build_payload(kw_list=['/m/01cpyy'], timeframe='2019-11-01 ' +
+                          datetime.now().strftime("%Y-%m-%d"), geo='DE')
+
+    interest_over_time_df = pytrend.interest_over_time()
+    interest_over_time_df.to_csv("./dat/temp/googleTrends/dailyInteressts/" + geoId + ".txt")
 
 def createDir():
     try:
@@ -37,6 +52,21 @@ def createDir():
     
     try:
         os.mkdir("./out/caseNumberHistoryPerCountry/")
+    except FileExistsError:
+        pass
+
+    try:
+        os.mkdir("./dat/temp/")
+    except FileExistsError:
+        pass
+
+    try:
+        os.mkdir("./dat/temp/googleTrends/")
+    except FileExistsError:
+        pass
+
+    try:
+        os.mkdir("./dat/temp/googleTrends/dailyInteressts/")
     except FileExistsError:
         pass
 
