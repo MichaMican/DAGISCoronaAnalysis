@@ -35,6 +35,6 @@ def loadCoronaCases():
             groupedDict[row["geoId"]] = []
             groupedDict[row["geoId"]].append(row)
         except Exception as error:
-            log.logError("Error while grouping - Error: " + error)
+            log.logError("Error while grouping - Error: " + str(error))
 
     return groupedDict

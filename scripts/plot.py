@@ -48,6 +48,8 @@ def plotCaseGoogleTrends(coronaCaseDataDict, googleTrendsDataDict):
 
         figure = plt.gcf()
         figure.set_size_inches(19.2, 10.8)
+        title = coronaCaseDataDict[countryKey][0]["countriesAndTerritories"].replace("_", " ")
+        plt.title(title)
         plt.savefig("../out/caseNumberHistoryPerCountry/" + countryKey +
                     ".png", bbox_inches=Bbox(np.array([[0, 0], [19.2, 10.8]])))
         plt.clf()
