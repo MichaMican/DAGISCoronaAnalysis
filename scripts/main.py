@@ -1,6 +1,6 @@
-from load import loadCoronaCases, loadGoogleTrendsData
-from plot import plotCaseGoogleTrends
-from download import downloadCoronaCases, downloadGoogleTrendsData
+import plot
+import load
+import download
 import log
 import os
 
@@ -9,18 +9,22 @@ os.chdir(scriptPath)
 log.logInfo("Scriptpath: " + str(scriptPath))
 
 def main():
-    #log.logInfo("Creating Directories")
-    #createAllDir()
-    #log.logInfo("Downloading corona cases")
-    #downloadCoronaCases()
-    log.logInfo("Loading corona cases into memor")
-    coronaCases = loadCoronaCases()
-    #log.logInfo("Downloading Google trends data")
-    #downloadGoogleTrendsData(coronaCases.keys())
-    log.logInfo("Loading Google trends data into memory")
-    googleTrends = loadGoogleTrendsData()
-    log.logInfo("Creating Plots")
-    plotCaseGoogleTrends(coronaCases, googleTrends)
+
+    download.downloadHealthSpendingPerCapita()
+    healthSpendingDict = load.loadHealthSpendingPerCapita()
+
+    # log.logInfo("Creating Directories")
+    # createAllDir()
+    # log.logInfo("Downloading corona cases")
+    # download.downloadCoronaCases()
+    # log.logInfo("Loading corona cases into memor")
+    # coronaCases = load.loadCoronaCases()
+    # log.logInfo("Downloading Google trends data")
+    # download.downloadGoogleTrendsData(coronaCases.keys())
+    # log.logInfo("Loading Google trends data into memory")
+    # googleTrends = load.loadGoogleTrendsData()
+    # log.logInfo("Creating Plots")
+    # plot.plotCaseGoogleTrends(coronaCases, googleTrends)
 
 def createAllDir():
 

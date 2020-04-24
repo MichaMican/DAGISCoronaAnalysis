@@ -2,6 +2,28 @@ import os
 import csv
 import log
 
+
+def loadHealthSpendingPerCapita():
+    dataArray = []
+    with open('../dat/temp/healthSpendingPerCapita.csv') as csv_file:
+        csv_reader = csv.DictReader(csv_file, delimiter=',')
+        for row in csv_reader:
+            dataArray.append(row)
+
+    groupedDict = {}
+    for row in dataArray:
+        try:
+            groupedDict[row["COUNTRY"]].append(row)
+        except KeyError:
+            groupedDict[row["COUNTRY"]] = []
+            groupedDict[row["COUNTRY"]].append(row)
+        except Exception as error:
+            log.logError("Error while grouping - Error: " + str(error))
+
+    return groupedDict
+
+
+
 def loadGoogleTrendsData():
     returnDict = {}
     for filename in os.listdir("../dat/temp/googleTrends/"):

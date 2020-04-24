@@ -17,6 +17,16 @@ def downloadCoronaCases():
     log.log("Download finished!")
 
 
+
+def downloadHealthSpendingPerCapita():
+    source = "http://apps.who.int/gho/athena/api/GHO/GHED_CHE_pc_US_SHA2011/?format=csv"
+    target = "../dat/temp/healthSpendingPerCapita.csv"
+    log.log("Downloading...")
+    result = requests.get(source)
+    open(target, "wb").write(result.content)
+    log.log("Download finished!")
+
+
 def downloadGoogleTrendsData(geoIdArray):
     pytrend = TrendReq()
     maxLength = len(geoIdArray)
