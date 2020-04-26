@@ -5,8 +5,8 @@ import datetime
 import numpy as np
 import pycountry
 
-
-
+def plotTopFlopHealthSpendingCoronaCases(coronaCasesDataDict, healthSpendingDict):
+    pass
 
 def plotCaseGoogleTrends(coronaCaseDataDict, googleTrendsDataDict):
     maxLength = len(coronaCaseDataDict)
