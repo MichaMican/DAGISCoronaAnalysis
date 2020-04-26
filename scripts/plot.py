@@ -1,14 +1,18 @@
-from log import printProgressBar
+import log
 import matplotlib.pyplot as plt
 from matplotlib.transforms import Bbox
 import datetime
 import numpy as np
+import pycountry
+
+
+
 
 def plotCaseGoogleTrends(coronaCaseDataDict, googleTrendsDataDict):
     maxLength = len(coronaCaseDataDict)
     progress = 1
     for countryKey in coronaCaseDataDict:
-        printProgressBar(progress, maxLength, "Saving plot for " + countryKey)
+        log.printProgressBar(progress, maxLength, "Saving plot for " + countryKey)
         xCorona = []
         yCorona = []
         yCoronaTotal = []
@@ -67,11 +71,6 @@ def plotCaseGoogleTrends(coronaCaseDataDict, googleTrendsDataDict):
 
             ax3.spines["right"].set_position(("axes", 1.05))
         
-
-        
-
-        
-
         figure = plt.gcf()
         figure.set_size_inches(19.2, 10.8)
         title = coronaCaseDataDict[countryKey][0]["countriesAndTerritories"].replace("_", " ")
