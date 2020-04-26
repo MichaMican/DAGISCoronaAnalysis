@@ -1,6 +1,7 @@
 import plot
 import load
 import download
+import preprocessing
 import log
 import os
 
@@ -13,18 +14,25 @@ def main():
     download.downloadHealthSpendingPerCapita()
     healthSpendingDict = load.loadHealthSpendingPerCapita()
 
-    # log.logInfo("Creating Directories")
-    # createAllDir()
-    # log.logInfo("Downloading corona cases")
-    # download.downloadCoronaCases()
-    # log.logInfo("Loading corona cases into memor")
-    # coronaCases = load.loadCoronaCases()
-    # log.logInfo("Downloading Google trends data")
-    # download.downloadGoogleTrendsData(coronaCases.keys())
-    # log.logInfo("Loading Google trends data into memory")
-    # googleTrends = load.loadGoogleTrendsData()
-    # log.logInfo("Creating Plots")
-    # plot.plotCaseGoogleTrends(coronaCases, googleTrends)
+    log.logInfo("Creating Directories")
+    createAllDir()
+    log.logInfo("Downloading corona cases")
+    download.downloadCoronaCases()
+    log.logInfo("Loading corona cases into memor")
+    coronaCases = load.loadCoronaCases()
+    log.logInfo("Downloading Google trends data")
+    download.downloadGoogleTrendsData(coronaCases.keys())
+    log.logInfo("Loading Google trends data into memory")
+    googleTrends = load.loadGoogleTrendsData()
+    log.logInfo("Creating Plots")
+    plot.plotCaseGoogleTrends(coronaCases, googleTrends)
+    
+    log.logInfo("Loading Gini-Coefficient data into memory")
+    giniCoefficient = load.loadGiniData()
+    log.logInfo("Creating Gini-Coefficient Plots")
+    plot.plotGiniData(giniCoefficient)
+    log.logInfo("Creating Gini-Coefficient csv Table")
+    preprocessing.saveGiniGroupedDataToCsv(giniCoefficient)
 
 def createAllDir():
 

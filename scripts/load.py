@@ -60,3 +60,21 @@ def loadCoronaCases():
             log.logError("Error while grouping - Error: " + str(error))
 
     return groupedDict
+
+def loadGiniData():
+    groupedDict = {}
+    resultArray = []
+    with open('../dat/temp/WorldBankGiniIndex.csv') as csv_file:
+
+        csv_reader = csv.DictReader(csv_file, delimiter=',')
+
+        for row in csv_reader:
+            resultArray.append(row)
+
+    for row in resultArray:
+        try:
+            groupedDict[row["Country Code"]] = row     
+        except Exception as err:
+            log.logError("Error while grouping - Error: " + str(err))
+
+    return groupedDict
