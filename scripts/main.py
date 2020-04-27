@@ -21,6 +21,8 @@ def main():
     download.downloadCoronaCases()
     log.logInfo("Loading corona cases into memory")
     coronaCases = load.loadCoronaCases()
+    log.logInfo("Downloading country borders")
+    download.downloadCountryBorders()
     log.logInfo("Downloading Google trends data")
     download.downloadGoogleTrendsData(coronaCases.keys())
     log.logInfo("Loading Google trends data into memory")
@@ -50,6 +52,11 @@ def createAllDir():
 
     try:
         os.makedirs("../dat/temp/googleTrends/")
+    except FileExistsError:
+        pass
+
+    try:
+        os.makedirs("../dat/temp/countryBorders/")
     except FileExistsError:
         pass
 

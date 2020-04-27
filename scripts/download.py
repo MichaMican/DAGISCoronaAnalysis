@@ -17,6 +17,10 @@ def downloadCoronaCases():
     open(target, "wb").write(result.content)
     log.log("Download finished!")
 
+def downloadCountryBorders():
+    source = "https://opendata.arcgis.com/datasets/252471276c9941729543be8789e06e12_0.zip"
+    dload.save_unzip(source, extract_path='../dat/temp/countryBorders', delete_after=True)
+
 def downloadGiniCoefficient():
     source = "http://api.worldbank.org/v2/en/indicator/SI.POV.GINI?downloadformat=csv"
     dload.save_unzip(source, extract_path='../dat/temp', delete_after=True)
