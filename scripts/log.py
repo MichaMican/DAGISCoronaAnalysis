@@ -4,33 +4,25 @@ import sys
 
 logFolder = "../log/"
 
-class bcolors:
-    INFO = '\033[94m'
-    WARNING = '\033[93m'
-    ERROR = '\033[91m'
-    ENDC = '\033[0m'
-    BOLD = '\033[1m'
-    UNDERLINE = '\033[4m'
-
 def checkPath():
     exists = os.path.exists(logFolder)
 
     if not exists:
-        print(bcolors.INFO + "[INFO] " + "A log folder was created here: " + os.path.abspath(logFolder) + bcolors.ENDC)
+        print("[INFO] " + "A log folder was created here: " + os.path.abspath(logFolder))
         os.makedirs(logFolder)
 
 
 def logError(logMessage):
     writeLog(logMessage, 3)
-    print(bcolors.ERROR + "[ERROR] " + logMessage + bcolors.ENDC)
+    print("[ERROR] " + logMessage, file=sys.stderr)
 
 def logWarning(logMessage):
     writeLog(logMessage, 2)
-    print(bcolors.WARNING + "[WARNING] " + logMessage)
+    print("[WARNING] " + logMessage)
 
 def logInfo(logMessage):
     writeLog(logMessage, 1)
-    print(bcolors.INFO + "[INFO] " + logMessage + bcolors.ENDC)
+    print("[INFO] " + logMessage)
 
 def log(logMessage):
     writeLog(logMessage, 0)

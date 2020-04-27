@@ -1,7 +1,8 @@
-from load import loadCoronaCases, loadGoogleTrendsData, loadGiniData
-from plot import plotCaseGoogleTrends, plotGiniData
-from download import downloadCoronaCases, downloadGoogleTrendsData, downloadGiniCoefficient
-from preprocessing import saveGiniGroupedDataToCsv
+import plot
+import draw
+import load
+import download
+import preprocessing
 import log
 import os
 
@@ -12,29 +13,40 @@ log.logInfo("Scriptpath: " + str(scriptPath))
 def main():
     log.logInfo("Creating Directories")
     createAllDir()
+    log.logInfo("Downloading health spendings")
+    download.downloadHealthSpendingPerCapita()
+    log.logInfo("Loading health spendings into memory")
+    healthSpendingDict = load.loadHealthSpendingPerCapita()
     log.logInfo("Downloading corona cases")
-    downloadCoronaCases()
-    log.logInfo("Downloading gini data")
-    downloadGiniCoefficient()
+    download.downloadCoronaCases()
     log.logInfo("Loading corona cases into memory")
-    coronaCases = loadCoronaCases()
+    coronaCases = load.loadCoronaCases()
+    log.logInfo("Downloading country borders")
+    download.downloadCountryBorders()
     log.logInfo("Downloading Google trends data")
-    downloadGoogleTrendsData(coronaCases.keys())
+    download.downloadGoogleTrendsData(coronaCases.keys())
     log.logInfo("Loading Google trends data into memory")
-    googleTrends = loadGoogleTrendsData()
+    googleTrends = load.loadGoogleTrendsData()
+    log.logInfo("Creating Plots")
+    plot.plotCaseGoogleTrends(coronaCases, googleTrends)
+    log.logInfo("Drawing maps")
+    draw.generateWorldMaps()
+    
     log.logInfo("Loading Gini-Coefficient data into memory")
-    giniCoefficient = loadGiniData()
-    log.logInfo("Creating Google trends Plots")
-    plotCaseGoogleTrends(coronaCases, googleTrends)
+    giniCoefficient = load.loadGiniData()
     log.logInfo("Creating Gini-Coefficient Plots")
-    plotGiniData(giniCoefficient)
+    plot.plotGiniData(giniCoefficient)
     log.logInfo("Creating Gini-Coefficient csv Table")
-    saveGiniGroupedDataToCsv(giniCoefficient)
+    preprocessing.saveGiniGroupedDataToCsv(giniCoefficient)
 
 def createAllDir():
-
     try:
         os.makedirs("../dat/temp/")
+    except FileExistsError:
+        pass
+
+    try:
+        os.makedirs("../out/")
     except FileExistsError:
         pass
 
@@ -44,12 +56,22 @@ def createAllDir():
         pass
 
     try:
-        os.makedirs("../out/caseNumberHistoryPerCountry/")
+        os.makedirs("../dat/temp/countryBorders/")
     except FileExistsError:
         pass
 
     try:
+        os.makedirs("../out/caseNumberHistoryPerCountry/")
+    except FileExistsError:
+        pass
+      
+    try:
         os.makedirs("../dat/temp/giniData/")
+    except FileExistsError:
+        pass
+      
+    try:
+        os.makedirs("../out/maps/")
     except FileExistsError:
         pass
 
