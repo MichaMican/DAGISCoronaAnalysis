@@ -88,7 +88,7 @@ def generateWorldMaps(targetFolder = "../out/maps/"):
         dayName = day.replace('/', '-')
 
         # Create figure
-        plt.figure()
+        figure = plt.figure()
         plt.tight_layout()
         plt.axis("off")
 
@@ -102,15 +102,15 @@ def generateWorldMaps(targetFolder = "../out/maps/"):
             # Get cases and deaths for corrent country, on current day
             cases = 0
             deaths = 0
-
             if iso in coronaCasesByCountry:
                 coronaCases = coronaCasesByCountry[iso]
                 cases = coronaCases["cases"]
                 deaths = coronaCases["deaths"]
             
-            
             # Determine draw color
-            relativeCases = cases / maxCases
+            relativeCases = 0
+            if maxCases != 0:
+                relativeCases = cases / maxCases
 
             # Draw shape
             drawShape(shape, relativeCases)
@@ -123,4 +123,5 @@ def generateWorldMaps(targetFolder = "../out/maps/"):
             bbox_inches = 'tight',
             pad_inches = 0
         )
-        #plt.show()
+        
+        plt.close(figure)
