@@ -3,51 +3,21 @@ import csv
 import log
 
 
-def loadHealthSpendingPerCapita():
+COMMA = ','
+
+def loadCSV(filepath, delimiter = COMMA):
     dataArray = []
-    with open('../dat/temp/healthSpendingPerCapita.csv') as csv_file:
-        csv_reader = csv.DictReader(csv_file, delimiter=',')
+
+    with open(filepath) as csv_file:
+        csv_reader = csv.DictReader(csv_file, delimiter = delimiter)
         for row in csv_reader:
             dataArray.append(row)
-
-    groupedDict = {}
-    for row in dataArray:
-        try:
-            groupedDict[row["COUNTRY"]].append(row)
-        except KeyError:
-            groupedDict[row["COUNTRY"]] = []
-            groupedDict[row["COUNTRY"]].append(row)
-        except Exception as error:
-            log.logError("Error while grouping - Error: " + str(error))
-
-    return groupedDict
+    
+    return dataArray
 
 
-
-def loadGoogleTrendsData():
-    returnDict = {}
-    for filename in os.listdir("../dat/temp/googleTrends/"):
-        if(filename.endswith(".csv")):
-            countryTrendsData = []
-            with open('../dat/temp/googleTrends/' + filename) as csv_file:
-                csv_reader = csv.DictReader(csv_file, delimiter=',')
-
-                for row in csv_reader:
-                    countryTrendsData.append(row)
-
-            returnDict[filename.replace(".csv", "")] = countryTrendsData
-
-    return returnDict
-
-def loadCoronaCases(group = "geoId"):
-
-    dataArray = []
-    with open('../dat/temp/coronaCases.csv') as csv_file:
-
-        csv_reader = csv.DictReader(csv_file, delimiter=',')
-
-        for row in csv_reader:
-            dataArray.append(row)
+def loadGroupedCSV(filename, group, delimiter = COMMA):
+    dataArray = loadCSV(filename, delimiter)
 
     groupedDict = {}
     for row in dataArray:
@@ -61,20 +31,21 @@ def loadCoronaCases(group = "geoId"):
 
     return groupedDict
 
+
+def loadHealthSpendingPerCapita():
+    return loadGroupedCSV('../dat/temp/healthSpendingPerCapita.csv', "COUNTRY")
+
+def loadCoronaCases(group = "geoId"):
+    return loadGroupedCSV('../dat/temp/coronaCases.csv', group)
+
 def loadGiniData():
-    groupedDict = {}
-    resultArray = []
-    with open('../dat/temp/WorldBankGiniIndex.csv') as csv_file:
+    return loadGroupedCSV('../dat/temp/WorldBankGiniIndex.csv', "Country Code")
 
-        csv_reader = csv.DictReader(csv_file, delimiter=',')
+def loadGoogleTrendsData():
+    returnDict = {}
+    for filename in os.listdir("../dat/temp/googleTrends/"):
+        if(filename.endswith(".csv")):
+            countryTrendsData = loadCSV('../dat/temp/googleTrends/' + filename)
+            returnDict[filename.replace(".csv", "")] = countryTrendsData
 
-        for row in csv_reader:
-            resultArray.append(row)
-
-    for row in resultArray:
-        try:
-            groupedDict[row["Country Code"]] = row     
-        except Exception as err:
-            log.logError("Error while grouping - Error: " + str(err))
-
-    return groupedDict
+    return returnDict
