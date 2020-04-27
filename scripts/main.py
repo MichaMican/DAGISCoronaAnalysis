@@ -1,4 +1,5 @@
 import plot
+import draw
 import load
 import download
 import preprocessing
@@ -10,15 +11,15 @@ os.chdir(scriptPath)
 log.logInfo("Scriptpath: " + str(scriptPath))
 
 def main():
-
-    download.downloadHealthSpendingPerCapita()
-    healthSpendingDict = load.loadHealthSpendingPerCapita()
-
     log.logInfo("Creating Directories")
     createAllDir()
+    log.logInfo("Downloading health spendings")
+    download.downloadHealthSpendingPerCapita()
+    log.logInfo("Loading health spendings into memory")
+    healthSpendingDict = load.loadHealthSpendingPerCapita()
     log.logInfo("Downloading corona cases")
     download.downloadCoronaCases()
-    log.logInfo("Loading corona cases into memor")
+    log.logInfo("Loading corona cases into memory")
     coronaCases = load.loadCoronaCases()
     log.logInfo("Downloading Google trends data")
     download.downloadGoogleTrendsData(coronaCases.keys())
@@ -26,6 +27,8 @@ def main():
     googleTrends = load.loadGoogleTrendsData()
     log.logInfo("Creating Plots")
     plot.plotCaseGoogleTrends(coronaCases, googleTrends)
+    log.logInfo("Drawing maps")
+    draw.generateWorldMaps()
     
     log.logInfo("Loading Gini-Coefficient data into memory")
     giniCoefficient = load.loadGiniData()
@@ -35,9 +38,13 @@ def main():
     preprocessing.saveGiniGroupedDataToCsv(giniCoefficient)
 
 def createAllDir():
-
     try:
         os.makedirs("../dat/temp/")
+    except FileExistsError:
+        pass
+
+    try:
+        os.makedirs("../out/")
     except FileExistsError:
         pass
 
@@ -48,6 +55,11 @@ def createAllDir():
 
     try:
         os.makedirs("../out/caseNumberHistoryPerCountry/")
+    except FileExistsError:
+        pass
+
+    try:
+        os.makedirs("../out/maps/")
     except FileExistsError:
         pass
 

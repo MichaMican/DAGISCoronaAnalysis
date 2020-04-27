@@ -1,2 +1,5 @@
 matplotlib==3.2.1
+pyshp==2.1.0
 pytrends
+pycountry
+dload
