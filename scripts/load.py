@@ -17,7 +17,7 @@ def loadGoogleTrendsData():
 
     return returnDict
 
-def loadCoronaCases():
+def loadCoronaCases(group = "geoId"):
 
     dataArray = []
     with open('../dat/temp/coronaCases.csv') as csv_file:
@@ -30,10 +30,10 @@ def loadCoronaCases():
     groupedDict = {}
     for row in dataArray:
         try:
-            groupedDict[row["geoId"]].append(row)
+            groupedDict[row[group]].append(row)
         except KeyError:
-            groupedDict[row["geoId"]] = []
-            groupedDict[row["geoId"]].append(row)
+            groupedDict[row[group]] = []
+            groupedDict[row[group]].append(row)
         except Exception as error:
             log.logError("Error while grouping - Error: " + str(error))
 

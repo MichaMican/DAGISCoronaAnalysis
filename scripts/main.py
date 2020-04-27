@@ -1,5 +1,6 @@
 from load import loadCoronaCases, loadGoogleTrendsData
 from plot import plotCaseGoogleTrends
+from draw import generateWorldMaps
 from download import downloadCoronaCases, downloadGoogleTrendsData
 import log
 import os
@@ -13,6 +14,8 @@ def main():
     #createAllDir()
     #log.logInfo("Downloading corona cases")
     #downloadCoronaCases()
+    log.logInfo("Drawing maps")
+    generateWorldMaps()
     log.logInfo("Loading corona cases into memor")
     coronaCases = loadCoronaCases()
     #log.logInfo("Downloading Google trends data")
