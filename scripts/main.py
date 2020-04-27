@@ -48,4 +48,9 @@ def createAllDir():
     except FileExistsError:
         pass
 
+    try:
+        os.makedirs("../dat/temp/giniData/")
+    except FileExistsError:
+        pass
+
 main()

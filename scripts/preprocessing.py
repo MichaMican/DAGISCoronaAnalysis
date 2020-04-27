@@ -23,7 +23,7 @@ def saveGiniGroupedDataToCsv(giniDataDictionary):
             })
 
     try:
-        with open("../dat/temp/latestGiniCoefficient.csv", 'w') as csvfile:
+        with open("../dat/temp/giniData/latestGiniCoefficient.csv", 'w') as csvfile:
             writer = csv.DictWriter(csvfile, fieldnames=["countryKey", "lastYearWithData", "value"])
             writer.writeheader()
             for data in dictArray:

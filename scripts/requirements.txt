@@ -1,2 +1,5 @@
 matplotlib==3.2.1
-pytrends
+pytrends==4.7.2
+dload==0.6
+pandas==1.0.3
+numpy==1.18.3

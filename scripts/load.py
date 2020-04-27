@@ -42,7 +42,7 @@ def loadCoronaCases():
 def loadGiniData():
     groupedDict = {}
     resultArray = []
-    with open('../dat/temp/WorldBankGiniIndex.csv') as csv_file:
+    with open('../dat/temp/giniData/WorldBankGiniIndex.csv') as csv_file:
 
         csv_reader = csv.DictReader(csv_file, delimiter=',')
 
