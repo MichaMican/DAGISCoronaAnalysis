@@ -70,7 +70,7 @@ def generateWorldMaps(targetFolder = "../out/maps/"):
     coronaCasesByDay = loadCoronaCases("dateRep")
     
     for day, coronaCasesOnDay in coronaCasesByDay.items():
-        log.log("Drawing day " + day)
+        log.logInfo("Drawing day " + day)
 
         # Sort daily cases by country
         coronaCasesByCountry = sortByCountry(coronaCasesOnDay)

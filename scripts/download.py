@@ -6,11 +6,39 @@ from log import printProgressBar
 import log
 import datetime
 import time
+import dload
 
 
 def downloadCoronaCases():
     source = "https://opendata.ecdc.europa.eu/covid19/casedistribution/csv"
     target = "../dat/temp/coronaCases.csv"
+    log.log("Downloading...")
+    result = requests.get(source)
+    open(target, "wb").write(result.content)
+    log.log("Download finished!")
+
+def downloadGiniCoefficient():
+    source = "http://api.worldbank.org/v2/en/indicator/SI.POV.GINI?downloadformat=csv"
+    dload.save_unzip(source, extract_path='../dat/temp', delete_after=True)
+    # Die ersten Zeilen des neu heruntergeladenen .csv Files müssen gelöscht werden!!! -> Sonst Error bei Grouping
+    # Siehe ./dat/temp/API_SI.POV.GINI_DS2_en_csv_v2_988343.csv
+    # try:
+    #     os.rename("../dat/temp/API_SI.POV.GINI_DS2_en_csv_v2_988343.csv", "../dat/temp/WorldBankGiniIndex.csv")
+    # except Exception:
+    #     os.remove("../dat/temp/WorldBankGiniIndex.csv")
+    #     os.rename("../dat/temp/API_SI.POV.GINI_DS2_en_csv_v2_988343.csv", "../dat/temp/WorldBankGiniIndex.csv")
+    #     log.logInfo("The .csv file name is already assigned - deleting the old file")
+
+    try:
+        os.remove("../dat/temp/Metadata_Country_API_SI.POV.GINI_DS2_en_csv_v2_988343.csv")
+        os.remove("../dat/temp/Metadata_Indicator_API_SI.POV.GINI_DS2_en_csv_v2_988343.csv")
+    except Exception as err:
+        log.logError("Removing unused .csv tables failed - Error: " + err)
+
+
+def downloadHealthSpendingPerCapita():
+    source = "http://apps.who.int/gho/athena/api/GHO/GHED_CHE_pc_US_SHA2011/?format=csv"
+    target = "../dat/temp/healthSpendingPerCapita.csv"
     log.log("Downloading...")
     result = requests.get(source)
     open(target, "wb").write(result.content)

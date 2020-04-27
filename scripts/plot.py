@@ -1,14 +1,18 @@
-from log import printProgressBar
+import log
 import matplotlib.pyplot as plt
 from matplotlib.transforms import Bbox
 import datetime
 import numpy as np
+import pycountry
+
+
+
 
 def plotCaseGoogleTrends(coronaCaseDataDict, googleTrendsDataDict):
     maxLength = len(coronaCaseDataDict)
     progress = 1
     for countryKey in coronaCaseDataDict:
-        printProgressBar(progress, maxLength, "Saving plot for " + countryKey)
+        log.printProgressBar(progress, maxLength, "Saving plot for " + countryKey)
         xCorona = []
         yCorona = []
         yCoronaTotal = []
@@ -67,11 +71,6 @@ def plotCaseGoogleTrends(coronaCaseDataDict, googleTrendsDataDict):
 
             ax3.spines["right"].set_position(("axes", 1.05))
         
-
-        
-
-        
-
         figure = plt.gcf()
         figure.set_size_inches(19.2, 10.8)
         title = coronaCaseDataDict[countryKey][0]["countriesAndTerritories"].replace("_", " ")
@@ -80,4 +79,46 @@ def plotCaseGoogleTrends(coronaCaseDataDict, googleTrendsDataDict):
                     ".png", bbox_inches=Bbox(np.array([[0, 0], [19.2, 10.8]])))
         plt.clf()
         plt.close()
+        progress += 1
+
+def plotGiniData(giniDataDict):
+    maxLength = len(giniDataDict)
+    progress = 1
+
+    for countryKey in giniDataDict:
+        giniValue = []
+        years = []
+        printProgressBar(progress, maxLength, "Saving plot for " + countryKey)
+
+        for year in giniDataDict[countryKey]:
+            if year.isdecimal():         
+                if(giniDataDict[countryKey][year] != ''):
+                    giniValue.append(float(giniDataDict[countryKey][year]))
+                    years.append(int(year))
+
+        if len(giniValue) > 0:
+            #plt.plot(years, giniValue, marker="o", linestyle= "solid")
+            
+            #bildet den den aktuellsten wert ab
+            #plt.bar(years[len(years) - 1], giniValue[len(giniValue) - 1])
+
+            #bildet alle werte ab
+            plt.bar(years, giniValue)
+            plt.ylabel('Gini-Coefficient')
+            plt.xlabel('Year')
+            #evtl dynamisch setzen?
+            plt.xlim([1960, 2020])
+            plt.ylim([0,100])
+            figure = plt.gcf()
+            figure.set_size_inches(19.2, 10.8)
+            if(countryKey == ""):
+                plt.savefig("../out/giniCoefficient/noCountryCode_Gini.png",
+                            bbox_inches=Bbox(np.array([[0, 0], [19.2, 10.8]])))
+            else:
+                plt.savefig("../out/giniCoefficient/" + countryKey +
+                            "_Gini.png", bbox_inches=Bbox(np.array([[0, 0], [19.2, 10.8]])))
+            #plt.show()
+            plt.clf()
+            plt.close()
+
         progress += 1
