@@ -61,7 +61,7 @@ def sortByCountry(coronaCasesOnDay):
 
 def generateWorldMaps(targetFolder = "../out/maps/"):
     # Read border shapefile
-    shp_path = "../dat/UIA_World_Countries_Boundaries/UIA_World_Countries_Boundaries"
+    shp_path = "../dat/temp/countryBorders/UIA_World_Countries_Boundaries"
     sf = ShapeFileReader(shp_path)
     fieldIDs = getFieldIDs(sf)
 
