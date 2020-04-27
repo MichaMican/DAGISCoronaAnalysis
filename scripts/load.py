@@ -3,6 +3,26 @@ import csv
 import log
 
 
+def loadPopulationOfYear(year):
+    dataArray = []
+    with open('../dat/temp/population.csv') as csv_file:
+
+        csv_reader = csv.DictReader(csv_file, delimiter=',')
+
+        for row in csv_reader:
+            dataArray.append(row)
+
+    populationOfYear = [data for data in dataArray if data["Time"] == year and data["Variant"] == "Medium"]
+
+    populationOfYearDict = {}
+
+    for countryPopulation in populationOfYear:
+        populationOfYearDict[countryPopulation["LocID"]] = countryPopulation
+
+    return populationOfYearDict
+
+
+
 def loadHealthSpendingPerCapita():
     dataArray = []
     with open('../dat/temp/healthSpendingPerCapita.csv') as csv_file:

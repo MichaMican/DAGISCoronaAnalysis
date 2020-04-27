@@ -8,6 +8,13 @@ import datetime
 import time
 import dload
 
+def downloadWorldPopulation():
+    source = "https://population.un.org/wpp/Download/Files/1_Indicators%20(Standard)/CSV_FILES/WPP2019_TotalPopulationBySex.csv"
+    target = "../dat/temp/population.csv"
+    log.log("Downloading...")
+    result = requests.get(source)
+    open(target, "wb").write(result.content)
+    log.log("Download finished!")
 
 def downloadCoronaCases():
     source = "https://opendata.ecdc.europa.eu/covid19/casedistribution/csv"

@@ -3,27 +3,60 @@ import matplotlib.pyplot as plt
 from matplotlib.transforms import Bbox
 import datetime
 import numpy as np
-import pycountry
 
-def plotTopFlopHealthSpendingCoronaCases(coronaCasesDataDict, healthSpendingDict):
-    pass
+
+def plotTopFlopHealthSpendingCoronaCases(topFlopCountryData, population):
+    #plt.set_xlim([datetime.date(2019, 12, 1), datetime.date.today()])
+    #cases
+    for countryData in topFlopCountryData.top:
+        x = []
+        yCases = []
+        yDeaths = []
+        for caseData in countryData.coronaCases:
+            x.append(datetime.date(int(caseData["year"]), int(
+                caseData["month"]), int(caseData["day"])))
+            
+            if yCases > 0:
+                yCases.append(yCases[-1] + caseData["cases"])
+            else:
+                yCases.append(caseData["cases"])
+
+            if yDeaths > 0:
+                yDeaths.append(yDeaths[-1] + caseData["deaths"])
+            else:
+                yDeaths.append(caseData["deaths"])
+
+
+    #deaths
+
+
+    # for countryKey in coronaCasesDataDict:
+    #     country = pycountry.countries.get(alpha_2 = countryKey)
+    #     countryAlpha3Key = country.alpha_3
+
+    #     #find latest in
+
 
 def plotCaseGoogleTrends(coronaCaseDataDict, googleTrendsDataDict):
     maxLength = len(coronaCaseDataDict)
     progress = 1
     for countryKey in coronaCaseDataDict:
-        log.printProgressBar(progress, maxLength, "Saving plot for " + countryKey)
+        log.printProgressBar(progress, maxLength,
+                             "Saving plot for " + countryKey)
         xCorona = []
         yCorona = []
         yCoronaTotal = []
 
-        sortedCases = sorted(coronaCaseDataDict[countryKey], key=lambda e: int(e["year"]) * 10000 + int(e["month"]) * 100 + int(e["day"]))
+        sortedCases = sorted(coronaCaseDataDict[countryKey], key=lambda e: int(
+            e["year"]) * 10000 + int(e["month"]) * 100 + int(e["day"]))
 
         for countryDict in sortedCases:
-            xCorona.append(datetime.date(int(countryDict["year"]), int(countryDict["month"]), int(countryDict["day"])))
+            xCorona.append(datetime.date(int(countryDict["year"]), int(
+                countryDict["month"]), int(countryDict["day"])))
             yCorona.append(int(countryDict["cases"]))
             if(len(yCoronaTotal) > 0):
-                yCoronaTotal.append(yCoronaTotal[len(yCoronaTotal) - 1] + int(countryDict["cases"]))
+                yCoronaTotal.append(
+                    yCoronaTotal[len(yCoronaTotal) - 1] + int(countryDict["cases"]))
             else:
                 yCoronaTotal.append(int(countryDict["cases"]))
 
@@ -41,45 +74,46 @@ def plotCaseGoogleTrends(coronaCaseDataDict, googleTrendsDataDict):
         ax1.yaxis.label.set_color("blue")
         ax1.tick_params(axis='y', colors="blue")
 
-        ax3 = ax1.twinx() 
-        ax3.plot_date(xCorona, yCoronaTotal, linestyle='solid', marker='None', color='green')
+        ax3 = ax1.twinx()
+        ax3.plot_date(xCorona, yCoronaTotal, linestyle='solid',
+                      marker='None', color='green')
         ax3.set_ylabel('total cases')
 
         ax3.yaxis.label.set_color("green")
         ax3.tick_params(axis='y', colors="green")
 
-        
-
         if coronaCaseDataDict[countryKey][0]["geoId"] in googleTrendsDataDict.keys():
-            
+
             xTrends = []
             yTrends = []
 
             for dayData in googleTrendsDataDict[coronaCaseDataDict[countryKey][0]["geoId"]]:
-                datetimeTrends = datetime.datetime.strptime(dayData["date"], "%Y-%m-%d")
+                datetimeTrends = datetime.datetime.strptime(
+                    dayData["date"], "%Y-%m-%d")
                 xTrends.append(datetimeTrends.date())
                 yTrends.append(int(dayData["/m/01cpyy"]))
-            
-            ax2 = ax1.twinx() 
-            ax2.plot_date(xTrends, yTrends, linestyle='solid', marker='None', color='red')
+
+            ax2 = ax1.twinx()
+            ax2.plot_date(xTrends, yTrends, linestyle='solid',
+                          marker='None', color='red')
             ax2.set_ylabel('Interest in %')
-            
-            
 
             ax2.yaxis.label.set_color("red")
             ax2.tick_params(axis='y', colors="red")
 
             ax3.spines["right"].set_position(("axes", 1.05))
-        
+
         figure = plt.gcf()
         figure.set_size_inches(19.2, 10.8)
-        title = coronaCaseDataDict[countryKey][0]["countriesAndTerritories"].replace("_", " ")
+        title = coronaCaseDataDict[countryKey][0]["countriesAndTerritories"].replace(
+            "_", " ")
         plt.title(title)
         plt.savefig("../out/caseNumberHistoryPerCountry/" + countryKey +
                     ".png", bbox_inches=Bbox(np.array([[0, 0], [19.2, 10.8]])))
         plt.clf()
         plt.close()
         progress += 1
+
 
 def plotGiniData(giniDataDict):
     maxLength = len(giniDataDict)
@@ -91,24 +125,24 @@ def plotGiniData(giniDataDict):
         printProgressBar(progress, maxLength, "Saving plot for " + countryKey)
 
         for year in giniDataDict[countryKey]:
-            if year.isdecimal():         
+            if year.isdecimal():
                 if(giniDataDict[countryKey][year] != ''):
                     giniValue.append(float(giniDataDict[countryKey][year]))
                     years.append(int(year))
 
         if len(giniValue) > 0:
             #plt.plot(years, giniValue, marker="o", linestyle= "solid")
-            
-            #bildet den den aktuellsten wert ab
+
+            # bildet den den aktuellsten wert ab
             #plt.bar(years[len(years) - 1], giniValue[len(giniValue) - 1])
 
-            #bildet alle werte ab
+            # bildet alle werte ab
             plt.bar(years, giniValue)
             plt.ylabel('Gini-Coefficient')
             plt.xlabel('Year')
-            #evtl dynamisch setzen?
+            # evtl dynamisch setzen?
             plt.xlim([1960, 2020])
-            plt.ylim([0,100])
+            plt.ylim([0, 100])
             figure = plt.gcf()
             figure.set_size_inches(19.2, 10.8)
             if(countryKey == ""):
@@ -117,7 +151,7 @@ def plotGiniData(giniDataDict):
             else:
                 plt.savefig("../out/giniCoefficient/" + countryKey +
                             "_Gini.png", bbox_inches=Bbox(np.array([[0, 0], [19.2, 10.8]])))
-            #plt.show()
+            # plt.show()
             plt.clf()
             plt.close()
 

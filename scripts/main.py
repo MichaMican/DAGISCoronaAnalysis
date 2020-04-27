@@ -11,15 +11,22 @@ log.logInfo("Scriptpath: " + str(scriptPath))
 
 def main():
 
+    log.logInfo("Creating Directories")
+    createAllDir()
+
+    log.logInfo("Downloading corona cases")
+    download.downloadCoronaCases()
+    log.logInfo("Loading corona cases into memory")
+    coronaCases = load.loadCoronaCases()
+
+    #download.downloadWorldPopulation()
+    population = load.loadPopulationOfYear("2020")
+
     download.downloadHealthSpendingPerCapita()
     healthSpendingDict = load.loadHealthSpendingPerCapita()
 
-    log.logInfo("Creating Directories")
-    createAllDir()
-    log.logInfo("Downloading corona cases")
-    download.downloadCoronaCases()
-    log.logInfo("Loading corona cases into memor")
-    coronaCases = load.loadCoronaCases()
+    plot.plotTopFlopHealthSpendingCoronaCases(preprocessing.getTopFlopCountries(coronaCases, healthSpendingDict, 3), population)
+
     log.logInfo("Downloading Google trends data")
     download.downloadGoogleTrendsData(coronaCases.keys())
     log.logInfo("Loading Google trends data into memory")
