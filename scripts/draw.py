@@ -68,9 +68,15 @@ def generateWorldMaps(targetFolder = "../out/maps/"):
 
     # Get daily values
     coronaCasesByDay = loadCoronaCases("dateRep")
+
+    # Get number of days
+    dayCount = len(coronaCasesByDay)
     
+    currentDayNum = 0
     for day, coronaCasesOnDay in coronaCasesByDay.items():
-        log.logInfo("Drawing day " + day)
+        # Update progress bar
+        currentDayNum = currentDayNum + 1
+        log.printProgressBar(currentDayNum, dayCount, "Generating world maps. Current day: " + day)
 
         # Sort daily cases by country
         coronaCasesByCountry = sortByCountry(coronaCasesOnDay)
