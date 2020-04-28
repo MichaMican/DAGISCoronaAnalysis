@@ -20,6 +20,10 @@ def downloadCoronaCases():
     open(target, "wb").write(result.content)
     log.log("Download finished!")
 
+def downloadCountryBorders():
+    source = "https://opendata.arcgis.com/datasets/252471276c9941729543be8789e06e12_0.zip"
+    dload.save_unzip(source, extract_path='../dat/temp/countryBorders', delete_after=True)
+
 def downloadGiniCoefficient():
     source = "https://api.worldbank.org/v2/en/indicator/SI.POV.GINI?downloadformat=csv"
     path = "../dat/temp/giniData/"
@@ -53,6 +57,16 @@ def downloadGiniCoefficient():
                 os.remove(path + filename)
             except Exception:
                 log.logError("Removing unused .csv tables failed - Error")
+
+
+def downloadHealthSpendingPerCapita():
+    source = "http://apps.who.int/gho/athena/api/GHO/GHED_CHE_pc_US_SHA2011/?format=csv"
+    target = "../dat/temp/healthSpendingPerCapita.csv"
+    log.log("Downloading...")
+    result = requests.get(source)
+    open(target, "wb").write(result.content)
+    log.log("Download finished!")
+
 
 def downloadGoogleTrendsData(geoIdArray):
     pytrend = TrendReq()
