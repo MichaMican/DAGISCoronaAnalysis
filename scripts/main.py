@@ -1,4 +1,6 @@
+from pathlib import Path
 import plot
+import draw
 import load
 import download
 import preprocessing
@@ -27,12 +29,16 @@ def main():
 
     plot.plotTopFlopHealthSpendingCoronaCases(preprocessing.getTopFlopCountries(coronaCases, healthSpendingDict, 3), population)
 
+    log.logInfo("Downloading country borders")
+    download.downloadCountryBorders()
     log.logInfo("Downloading Google trends data")
     download.downloadGoogleTrendsData(coronaCases.keys())
     log.logInfo("Loading Google trends data into memory")
     googleTrends = load.loadGoogleTrendsData()
     log.logInfo("Creating Plots")
     plot.plotCaseGoogleTrends(coronaCases, googleTrends)
+    log.logInfo("Drawing maps")
+    draw.generateWorldMaps()
     
     log.logInfo("Loading Gini-Coefficient data into memory")
     giniCoefficient = load.loadGiniData()
@@ -41,21 +47,21 @@ def main():
     log.logInfo("Creating Gini-Coefficient csv Table")
     preprocessing.saveGiniGroupedDataToCsv(giniCoefficient)
 
+def createDir(dirname):
+    Path(dirname).mkdir(parents = True, exist_ok = True)
+
+def createDirs(dirnames):
+    for dirname in dirnames:
+        createDir(dirname)
+
 def createAllDir():
-
-    try:
-        os.makedirs("../dat/temp/")
-    except FileExistsError:
-        pass
-
-    try:
-        os.makedirs("../dat/temp/googleTrends/")
-    except FileExistsError:
-        pass
-
-    try:
-        os.makedirs("../out/caseNumberHistoryPerCountry/")
-    except FileExistsError:
-        pass
+    createDirs([
+        "../dat/temp/",
+        "../dat/temp/googleTrends/",
+        "../dat/temp/countryBorders/",
+        "../out/",
+        "../out/caseNumberHistoryPerCountry/",
+        "../out/maps/"
+    ])
 
 main()
