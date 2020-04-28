@@ -64,7 +64,7 @@ def createAllDir():
         os.makedirs("../out/caseNumberHistoryPerCountry/")
     except FileExistsError:
         pass
-
+      
     try:
         os.makedirs("../dat/temp/giniData/")
     except FileExistsError:
