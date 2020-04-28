@@ -1,3 +1,4 @@
+from pathlib import Path
 import plot
 import draw
 import load
@@ -39,35 +40,21 @@ def main():
     log.logInfo("Creating Gini-Coefficient csv Table")
     preprocessing.saveGiniGroupedDataToCsv(giniCoefficient)
 
+def createDir(dirname):
+    Path(dirname).mkdir(parents = True, exist_ok = True)
+
+def createDirs(dirnames):
+    for dirname in dirnames:
+        createDir(dirname)
+
 def createAllDir():
-    try:
-        os.makedirs("../dat/temp/")
-    except FileExistsError:
-        pass
-
-    try:
-        os.makedirs("../out/")
-    except FileExistsError:
-        pass
-
-    try:
-        os.makedirs("../dat/temp/googleTrends/")
-    except FileExistsError:
-        pass
-
-    try:
-        os.makedirs("../dat/temp/countryBorders/")
-    except FileExistsError:
-        pass
-
-    try:
-        os.makedirs("../out/caseNumberHistoryPerCountry/")
-    except FileExistsError:
-        pass
-
-    try:
-        os.makedirs("../out/maps/")
-    except FileExistsError:
-        pass
+    createDirs([
+        "../dat/temp/",
+        "../dat/temp/googleTrends/",
+        "../dat/temp/countryBorders/",
+        "../out/",
+        "../out/caseNumberHistoryPerCountry/",
+        "../out/maps/"
+    ])
 
 main()
