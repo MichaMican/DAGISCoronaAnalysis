@@ -2,6 +2,19 @@ import csv
 import log
 import pycountry
 
+def extractCountryPopulationForYear(populationRaw, year):
+    population = {}
+    for countryPopulation in populationRaw[year]:
+        if countryPopulation["VarID"] == '2':
+            country = pycountry.countries.get(numeric=countryPopulation["LocID"].zfill(3))
+            if country != None:
+                population[country.alpha_2] = float(countryPopulation["PopTotal"])
+            else:
+                log.logWarning("Countrycode of " + countryPopulation["Location"] + "couldnt be parsed")
+
+    return population
+
+
 def getTopFlopCountries(coronaCasesDataDict, healthSpendingDict, count):
     for countryKey in healthSpendingDict:
         healthSpendingDict[countryKey] = sorted(healthSpendingDict[countryKey], key=lambda e:
@@ -23,7 +36,7 @@ def getTopFlopCountries(coronaCasesDataDict, healthSpendingDict, count):
             conutryAlpha2 = country.alpha_2
             if conutryAlpha2 in coronaCasesDataDict.keys():
                 counter += 1
-                topCountries.append({"coronaCases": coronaCasesDataDict[conutryAlpha2], "healthSpending": healthSpendingDict[countryKey]})
+                topCountries.append({"coronaCases": coronaCasesDataDict[conutryAlpha2], "healthSpending": healthSpendingDict[countryKey], "alpha_2": conutryAlpha2})
             
             if counter >= count:
                 break
@@ -40,7 +53,7 @@ def getTopFlopCountries(coronaCasesDataDict, healthSpendingDict, count):
             conutryAlpha2 = country.alpha_2
             if conutryAlpha2 in coronaCasesDataDict.keys():
                 counter += 1
-                flopCountries.append({"coronaCases": coronaCasesDataDict[conutryAlpha2], "healthSpending": healthSpendingDict[countryKey]})
+                flopCountries.append({"coronaCases": coronaCasesDataDict[conutryAlpha2], "healthSpending": healthSpendingDict[countryKey], "alpha_2": conutryAlpha2})
             
             if counter >= count:
                 break
@@ -50,7 +63,7 @@ def getTopFlopCountries(coronaCasesDataDict, healthSpendingDict, count):
 
     return {
         "top": topCountries,
-        "flop": flopCountries
+        "flop": flopCountries,
     }
 
 def saveGiniGroupedDataToCsv(giniDataDictionary):

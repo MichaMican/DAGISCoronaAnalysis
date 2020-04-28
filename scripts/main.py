@@ -16,18 +16,18 @@ def main():
     log.logInfo("Creating Directories")
     createAllDir()
 
-    log.logInfo("Downloading corona cases")
-    download.downloadCoronaCases()
+    #log.logInfo("Downloading corona cases")
+    #download.downloadCoronaCases()
     log.logInfo("Loading corona cases into memory")
     coronaCases = load.loadCoronaCases()
 
     #download.downloadWorldPopulation()
-    population = load.loadPopulationOfYear("2020")
+    population = load.loadPopulationGroupedByYear()
 
-    download.downloadHealthSpendingPerCapita()
+    #download.downloadHealthSpendingPerCapita()
     healthSpendingDict = load.loadHealthSpendingPerCapita()
 
-    plot.plotTopFlopHealthSpendingCoronaCases(preprocessing.getTopFlopCountries(coronaCases, healthSpendingDict, 3), population)
+    plot.plotTopFlopHealthSpendingCoronaCases(preprocessing.getTopFlopCountries(coronaCases, healthSpendingDict, 3), preprocessing.extractCountryPopulationForYear(population, "2020"))
 
     log.logInfo("Downloading country borders")
     download.downloadCountryBorders()
@@ -37,8 +37,8 @@ def main():
     googleTrends = load.loadGoogleTrendsData()
     log.logInfo("Creating Plots")
     plot.plotCaseGoogleTrends(coronaCases, googleTrends)
-    log.logInfo("Drawing maps")
-    draw.generateWorldMaps()
+    # log.logInfo("Drawing maps")
+    # draw.generateWorldMaps()
     
     log.logInfo("Loading Gini-Coefficient data into memory")
     giniCoefficient = load.loadGiniData()
@@ -61,7 +61,8 @@ def createAllDir():
         "../dat/temp/countryBorders/",
         "../out/",
         "../out/caseNumberHistoryPerCountry/",
-        "../out/maps/"
+        "../out/maps/",
+        "../out/healthSpending/"
     ])
 
 main()

@@ -6,26 +6,122 @@ import numpy as np
 
 
 def plotTopFlopHealthSpendingCoronaCases(topFlopCountryData, population):
-    #plt.set_xlim([datetime.date(2019, 12, 1), datetime.date.today()])
-    #cases
-    for countryData in topFlopCountryData.top:
+
+
+    place = 0
+    for countryData in topFlopCountryData["top"]:
+
         x = []
-        yCases = []
-        yDeaths = []
-        for caseData in countryData.coronaCases:
-            x.append(datetime.date(int(caseData["year"]), int(
-                caseData["month"]), int(caseData["day"])))
-            
-            if yCases > 0:
-                yCases.append(yCases[-1] + caseData["cases"])
-            else:
-                yCases.append(caseData["cases"])
+        totalCases = []
+        yCasesPer100kCitizens = []
+        totalCases = []
+        yDeathsPer100kCitizens = []
+        countryPopulation = population[countryData["alpha_2"]] * 1000
 
-            if yDeaths > 0:
-                yDeaths.append(yDeaths[-1] + caseData["deaths"])
-            else:
-                yDeaths.append(caseData["deaths"])
+        if countryPopulation > 0:
 
+            sortedCasesCountryData = sorted(countryData["coronaCases"], key=lambda e: int(
+            e["year"]) * 10000 + int(e["month"]) * 100 + int(e["day"]))
+
+
+            for caseData in sortedCasesCountryData:
+                x.append(datetime.date(int(caseData["year"]), int(
+                    caseData["month"]), int(caseData["day"])))
+                
+                if len(totalCases) > 0:
+                    totalCases.append(totalCases[-1] + int(caseData["cases"]))
+                else:
+                    totalCases.append(int(caseData["cases"]))
+
+                if len(totalCases) > 0:
+                    totalCases.append(totalCases[-1] + int(caseData["deaths"]))
+                else:
+                    totalCases.append(int(caseData["deaths"]))
+
+                yCasesPer100kCitizens.append((totalCases[-1]/countryPopulation) * 100000)
+                yDeathsPer100kCitizens.append((totalCases[-1]/countryPopulation) * 100000)
+
+            red = hex(85 * place)
+            green = hex(255)
+            blue = hex(0)
+
+            colorString = "#"+str(red).replace("0x","").zfill(2)+str(green).replace("0x","").zfill(2)+str(blue).replace("0x","").zfill(2)
+
+            plt.figure(1)
+            plt.plot_date(x, yCasesPer100kCitizens, color=colorString)
+            plt.figure(2)
+            plt.plot_date(x, yDeathsPer100kCitizens, color=colorString)
+            place += 1
+
+        else:
+            log.logError("There is no countryPopulation data for " + countryData.alpha_2)
+
+    place = 0
+    for countryData in topFlopCountryData["flop"]:
+
+        x = []
+        totalCases = []
+        yCasesPer100kCitizens = []
+        totalCases = []
+        yDeathsPer100kCitizens = []
+        countryPopulation = population[countryData["alpha_2"]] * 1000
+
+        if countryPopulation > 0:
+
+            sortedCasesCountryData = sorted(countryData["coronaCases"], key=lambda e: int(
+            e["year"]) * 10000 + int(e["month"]) * 100 + int(e["day"]))
+
+
+            for caseData in sortedCasesCountryData:
+                x.append(datetime.date(int(caseData["year"]), int(
+                    caseData["month"]), int(caseData["day"])))
+                
+                if len(totalCases) > 0:
+                    totalCases.append(totalCases[-1] + int(caseData["cases"]))
+                else:
+                    totalCases.append(int(caseData["cases"]))
+
+                if len(totalCases) > 0:
+                    totalCases.append(totalCases[-1] + int(caseData["deaths"]))
+                else:
+                    totalCases.append(int(caseData["deaths"]))
+
+                yCasesPer100kCitizens.append((totalCases[-1]/countryPopulation) * 100000)
+                yDeathsPer100kCitizens.append((totalCases[-1]/countryPopulation) * 100000)
+
+            red = hex(255)
+            green = hex(85 * place)
+            blue = hex(0)
+
+            colorString = "#"+str(red).replace("0x","").zfill(2)+str(green).replace("0x","").zfill(2)+str(blue).replace("0x","").zfill(2)
+
+            plt.figure(1)
+            plt.plot_date(x, yCasesPer100kCitizens, color=colorString)
+            plt.figure(2)
+            plt.plot_date(x, yDeathsPer100kCitizens, color=colorString)
+            place += 1
+
+        else:
+            log.logError("There is no countryPopulation data for " + countryData.alpha_2)       
+    
+
+    plt.figure(1)
+    figure = plt.gcf()
+    figure.set_size_inches(19.2, 10.8)
+    title = "cases per 100k of top and flop 3 per head spender"
+    plt.title(title)
+    plt.savefig("../out/healthSpending/cases.png", bbox_inches=Bbox(np.array([[0, 0], [19.2, 10.8]])))
+    plt.clf()
+    plt.close()
+
+    plt.figure(2)
+    figure = plt.gcf()
+    figure.set_size_inches(19.2, 10.8)
+    title = "deaths per 100k of top and flop 3 per head spender"
+    plt.title(title)
+    plt.savefig("../out/healthSpending/deaths.png", bbox_inches=Bbox(np.array([[0, 0], [19.2, 10.8]])))
+    plt.clf()
+    plt.close()
 
     #deaths
 

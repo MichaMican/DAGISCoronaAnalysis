@@ -3,25 +3,6 @@ import csv
 import log
 
 
-def loadPopulationOfYear(year):
-    dataArray = []
-    with open('../dat/temp/population.csv') as csv_file:
-
-        csv_reader = csv.DictReader(csv_file, delimiter=',')
-
-        for row in csv_reader:
-            dataArray.append(row)
-
-    populationOfYear = [data for data in dataArray if data["Time"] == year and data["Variant"] == "Medium"]
-
-    populationOfYearDict = {}
-
-    for countryPopulation in populationOfYear:
-        populationOfYearDict[countryPopulation["LocID"]] = countryPopulation
-
-    return populationOfYearDict
-
-
 COMMA = ','
 
 def loadCSV(filepath, delimiter = COMMA):
@@ -50,6 +31,8 @@ def loadGroupedCSV(filename, group, delimiter = COMMA):
 
     return groupedDict
 
+def loadPopulationGroupedByYear():
+    return loadGroupedCSV('../dat/temp/population.csv', "Time")
 
 def loadHealthSpendingPerCapita():
     return loadGroupedCSV('../dat/temp/healthSpendingPerCapita.csv', "COUNTRY")
