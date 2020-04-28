@@ -1,15 +1,19 @@
 import requests
 import os
+import csv
 from pytrends.request import TrendReq
 import pytrends
 from log import printProgressBar
+import zipfile
 import log
 import datetime
 import time
 import dload
+import pandas as pd
 
 
 def downloadCoronaCases():
+    #evtl. für requests ne extra funktion aufmachen @zukunftsphilipp
     source = "https://opendata.ecdc.europa.eu/covid19/casedistribution/csv"
     target = "../dat/temp/coronaCases.csv"
     log.log("Downloading...")
@@ -22,22 +26,38 @@ def downloadCountryBorders():
     dload.save_unzip(source, extract_path='../dat/temp/countryBorders', delete_after=True)
 
 def downloadGiniCoefficient():
-    source = "http://api.worldbank.org/v2/en/indicator/SI.POV.GINI?downloadformat=csv"
-    dload.save_unzip(source, extract_path='../dat/temp', delete_after=True)
-    # Die ersten Zeilen des neu heruntergeladenen .csv Files müssen gelöscht werden!!! -> Sonst Error bei Grouping
-    # Siehe ./dat/temp/API_SI.POV.GINI_DS2_en_csv_v2_988343.csv
-    # try:
-    #     os.rename("../dat/temp/API_SI.POV.GINI_DS2_en_csv_v2_988343.csv", "../dat/temp/WorldBankGiniIndex.csv")
-    # except Exception:
-    #     os.remove("../dat/temp/WorldBankGiniIndex.csv")
-    #     os.rename("../dat/temp/API_SI.POV.GINI_DS2_en_csv_v2_988343.csv", "../dat/temp/WorldBankGiniIndex.csv")
-    #     log.logInfo("The .csv file name is already assigned - deleting the old file")
+    source = "https://api.worldbank.org/v2/en/indicator/SI.POV.GINI?downloadformat=csv"
+    path = "../dat/temp/giniData/"
+    target = path + "GiniData.zip"
+    log.log("Downloading...")
+    result = requests.get(source)
+    open(target, "wb").write(result.content)
+    log.log("Download finished!")
 
-    try:
-        os.remove("../dat/temp/Metadata_Country_API_SI.POV.GINI_DS2_en_csv_v2_988343.csv")
-        os.remove("../dat/temp/Metadata_Indicator_API_SI.POV.GINI_DS2_en_csv_v2_988343.csv")
-    except Exception as err:
-        log.logError("Removing unused .csv tables failed - Error: " + err)
+    with zipfile.ZipFile(target, 'r') as zipObj:
+        zipObj.extractall(path)
+    #an der stelle die csv scho umbenennen!!!
+
+    #!!funktioniert nur wenn worldbankginiindex.csv vorher schon in dem ordner ist ansonsten läuft das script leer!!
+    for filename in os.listdir(path):
+        if(filename == "WorldBankGiniIndex.csv"):
+            log.log("Deleting first 4 rows of WorldBankGiniIndex.csv ...")
+            dataFrame = pd.read_csv(path + "WorldBankGiniIndex.csv", skiprows=4)
+            dataFrame.to_csv(path + "WorldBankGiniIndex.csv", index=False)
+            log.log("Deleting rows finished!")
+
+        elif(filename == "API_SI.POV.GINI_DS2_en_csv_v2_988343.csv"):
+            try:
+                os.rename(path + "API_SI.POV.GINI_DS2_en_csv_v2_988343.csv", path + "WorldBankGiniIndex.csv")
+            except Exception:
+                os.remove(path + "WorldBankGiniIndex.csv")
+                os.rename(path + "API_SI.POV.GINI_DS2_en_csv_v2_988343.csv", path + "WorldBankGiniIndex.csv")
+                log.logInfo("The .csv file name is already assigned - deleting the old file")
+        else:
+            try:
+                os.remove(path + filename)
+            except Exception:
+                log.logError("Removing unused .csv tables failed - Error")
 
 
 def downloadHealthSpendingPerCapita():
