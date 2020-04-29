@@ -4,7 +4,46 @@ from matplotlib.transforms import Bbox
 import datetime
 import numpy as np
 import pycountry
+import math
 
+
+def plotTopFlopGiniCoefficientOverview(newestGiniCoefficientPerCountryDict):
+
+    sortedCountryKeys = sorted(newestGiniCoefficientPerCountryDict,key=lambda e: newestGiniCoefficientPerCountryDict[e]["value"], reverse=True)
+
+    rankingPos = 0
+    for countryKey in sortedCountryKeys:
+
+        if rankingPos < 5 or rankingPos > (len(sortedCountryKeys) - 1 - 5):
+
+            red = hex(255)
+            green = hex(int(math.floor(rankingPos * 1/10 * 255)))
+            blue = hex(0)
+
+            if rankingPos > (len(sortedCountryKeys) - 1 - 5):
+
+                red = hex(int(math.floor((len(sortedCountryKeys) - rankingPos) * 1/8 * 255)))
+                green = hex(255)
+                blue = hex(0)
+                
+
+            countryData = newestGiniCoefficientPerCountryDict[countryKey]
+            plt.barh(pycountry.countries.get(alpha_2=countryKey).name + " (" + countryData["lastYearWithData"] + ")", countryData["value"], color="#"+str(red).replace("0x","").zfill(2)+str(green).replace("0x","").zfill(2)+str(blue).replace("0x","").zfill(2))
+
+        elif rankingPos == 5:
+            plt.barh("...", 0)
+
+        rankingPos += 1
+
+    figure = plt.gcf()
+    figure.set_size_inches(19.2, 10.8)
+    title = "Best and worst Gini-Coefficient in the world"
+    plt.title(title)
+    plt.savefig("../out/giniCoefficient/topFlopList.png", bbox_inches=Bbox(np.array([[0, 0], [19.2, 10.8]])))
+    plt.clf()
+    plt.close()
+
+    
 
 def plotTopFlopHealthSpendingCoronaCases(topFlopCountryData, population):
 

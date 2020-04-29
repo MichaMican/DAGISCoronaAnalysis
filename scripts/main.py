@@ -53,6 +53,7 @@ def main():
     plot.plotGiniData(giniCoefficient)
     log.logInfo("Creating Gini-Coefficient csv Table")
     newestGiniCoefficientDict = preprocessing.getNewestGiniCoefficientDict(giniCoefficient)
+    plot.plotTopFlopGiniCoefficientOverview(newestGiniCoefficientDict)
 
 def createDir(dirname):
     Path(dirname).mkdir(parents = True, exist_ok = True)
