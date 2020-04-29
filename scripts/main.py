@@ -12,26 +12,41 @@ os.chdir(scriptPath)
 log.logInfo("Scriptpath: " + str(scriptPath))
 
 def main():
+
     log.logInfo("Creating Directories")
     createAllDir()
-    log.logInfo("Downloading health spendings")
-    download.downloadHealthSpendingPerCapita()
-    log.logInfo("Loading health spendings into memory")
-    healthSpendingDict = load.loadHealthSpendingPerCapita()
-    log.logInfo("Downloading corona cases")
-    download.downloadCoronaCases()
-    log.logInfo("Loading corona cases into memory")
-    coronaCases = load.loadCoronaCases()
-    log.logInfo("Downloading country borders")
-    download.downloadCountryBorders()
-    log.logInfo("Downloading Google trends data")
-    download.downloadGoogleTrendsData(coronaCases.keys())
-    log.logInfo("Loading Google trends data into memory")
-    googleTrends = load.loadGoogleTrendsData()
-    log.logInfo("Creating Plots")
-    plot.plotCaseGoogleTrends(coronaCases, googleTrends)
+
+    #log.logInfo("Downloading corona cases")
+    #download.downloadCoronaCases()
+    # log.logInfo("Loading corona cases into memory")
+    # coronaCases = load.loadCoronaCases()
+
+    # log.logInfo("Downloading world popoulation")
+    # download.downloadWorldPopulation()
+    # log.logInfo("Loading world popoulation into memory")
+    # population = load.loadPopulationGroupedByYear()
+    
+    # log.logInfo("Downloading health spending data")
+    # download.downloadHealthSpendingPerCapita()
+    # log.logInfo("Loading health spending data into memory")
+    # healthSpendingDict = load.loadHealthSpendingPerCapita()
+    # log.logInfo("Plotting topFlop health spender")
+    # plot.plotTopFlopHealthSpendingCoronaCases(preprocessing.getTopFlopCountries(coronaCases, healthSpendingDict, 3), preprocessing.extractCountryPopulationForYear(population, "2020"))
+
+    # log.logInfo("Downloading country borders")
+    # download.downloadCountryBorders()
+    # log.logInfo("Downloading Google trends data")
+    # download.downloadGoogleTrendsData(coronaCases.keys())
+    # log.logInfo("Loading Google trends data into memory")
+    # googleTrends = load.loadGoogleTrendsData()
+    # log.logInfo("Creating Plots")
+    # plot.plotCaseGoogleTrends(coronaCases, googleTrends)
     # log.logInfo("Drawing maps")
     # draw.generateWorldMaps()
+    
+    log.logInfo("Downloading Gini-Coefficient")
+    download.downloadGiniCoefficient()
+    
     log.logInfo("Loading Gini-Coefficient data into memory")
     giniCoefficient = load.loadGiniData()
     log.logInfo("Creating Gini-Coefficient Plots")
@@ -51,10 +66,12 @@ def createAllDir():
         "../dat/temp/",
         "../dat/temp/googleTrends/",
         "../dat/temp/countryBorders/",
-        "../dat/temp/giniData/"
+        "../dat/temp/giniData/",
         "../out/",
         "../out/caseNumberHistoryPerCountry/",
-        "../out/maps/"
+        "../out/maps/",
+        "../out/healthSpending/",
+        "../out/giniCoefficient/"
     ])
 
 main()
