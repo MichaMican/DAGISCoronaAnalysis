@@ -1,9 +1,15 @@
 from shapefile import Reader as ShapeFileReader
+import glob
 import matplotlib.pyplot as plt
 from matplotlib.colors import to_hex
 from load import loadCoronaCases
 import log
 
+
+# Open shape file from folder
+def getShapeFileReader(folder):
+    shapeFiles = glob.glob(folder + "*.shp")
+    return ShapeFileReader(shapeFiles[0])
 
 # Associate the column names with column numbers
 def getFieldIDs(sf):
@@ -17,7 +23,7 @@ def getFieldIDs(sf):
     return fieldIDs
 
 
-def drawShape(shape, value):
+def drawShape(shape, color):
     # Itarte through the parts of the shape
     for i in range(len(shape.parts)):
         partStart = shape.parts[i]
@@ -31,61 +37,34 @@ def drawShape(shape, value):
         # Draw this part
         x = [i[0] for i in shape.points[partStart:partEnd]]
         y = [i[1] for i in shape.points[partStart:partEnd]]
-        plt.fill(x, y, to_hex((value, 0, value)))
+        plt.fill(x, y, to_hex(color))
 
 
-def getMaxValuesOnDay(coronaCasesOnDay):
-    maxCases = 0
-    maxDeaths = 0
+def getMaxValueOnDay(dataOnDay):
+    maxValue = 0
 
-    for coronaCases in coronaCasesOnDay:
-        maxCases = max(maxCases, int(coronaCases["cases"]))
-        maxDeaths = max(maxDeaths, int(coronaCases["deaths"]))
+    for value in dataOnDay.values():
+        maxValue = max(maxValue, value)
     
-    return (maxCases, maxDeaths)
+    return maxValue
 
 
-def sortByCountry(coronaCasesOnDay):
-    coronaCasesByCountry = {}
-
-    for coronaCases in coronaCasesOnDay:
-        iso = coronaCases["geoId"]
-
-        countryCases = {}
-        countryCases["cases"] = int(coronaCases["cases"])
-        countryCases["deaths"] = int(coronaCases["deaths"])
-        coronaCasesByCountry[iso] = countryCases
-    
-    return coronaCasesByCountry
-
-
-def generateWorldMaps(targetFolder = "../out/maps/"):
+def generateMaps(data, toColorCode, targetFolder = "../out/maps/", mapShpPath = "../dat/temp/countryBorders/", shapeIDFieldName = "ISO"):
     # Read border shapefile
-    shp_path = "../dat/temp/countryBorders/UIA_World_Countries_Boundaries"
-    sf = ShapeFileReader(shp_path)
+    sf = getShapeFileReader(mapShpPath)
     fieldIDs = getFieldIDs(sf)
 
-
-    # Get daily values
-    coronaCasesByDay = loadCoronaCases("dateRep")
-
-    # Get number of days
-    dayCount = len(coronaCasesByDay)
+    # Get number of maps to generate
+    mapCount = len(data)
     
-    currentDayNum = 0
-    for day, coronaCasesOnDay in coronaCasesByDay.items():
+    currentMapNum = 0
+    for mapId, dataOnDay in data.items():
         # Update progress bar
-        currentDayNum = currentDayNum + 1
-        log.printProgressBar(currentDayNum, dayCount, "Generating world maps. Current day: " + day)
-
-        # Sort daily cases by country
-        coronaCasesByCountry = sortByCountry(coronaCasesOnDay)
+        currentMapNum = currentMapNum + 1
+        log.printProgressBar(currentMapNum, mapCount, "Generating world maps. Current map: " + mapId)
 
         # Determine max cases and deaths on given day
-        maxCases, maxDeaths = getMaxValuesOnDay(coronaCasesOnDay)
-
-        # Get name of day (used for filename)
-        dayName = day.replace('/', '-')
+        maxValue = getMaxValueOnDay(dataOnDay)
 
         # Create figure
         figure = plt.figure()
@@ -96,28 +75,26 @@ def generateWorldMaps(targetFolder = "../out/maps/"):
         for shapeRecord in sf.iterShapeRecords():
             shape = shapeRecord.shape
             record = shapeRecord.record
-            iso = record[fieldIDs["ISO"]]
-            area = record[fieldIDs["Shape__Are"]]
+            shapeID = record[fieldIDs[shapeIDFieldName]]
 
             # Get cases and deaths for corrent country, on current day
-            cases = 0
-            deaths = 0
-            if iso in coronaCasesByCountry:
-                coronaCases = coronaCasesByCountry[iso]
-                cases = coronaCases["cases"]
-                deaths = coronaCases["deaths"]
+            value = 0
+            if shapeID in dataOnDay:
+                value = dataOnDay[shapeID]
             
             # Determine draw color
-            relativeCases = 0
-            if maxCases != 0:
-                relativeCases = cases / maxCases
+            relativeValue = 0
+            if maxValue > 0:
+                relativeValue = value / maxValue
+            
+            color = toColorCode(relativeValue)
 
             # Draw shape
-            drawShape(shape, relativeCases)
+            drawShape(shape, color)
 
         # Display
         plt.savefig(
-            targetFolder + dayName + ".png",
+            targetFolder + mapId.replace('/', '-') + ".png",
             dpi = 300,
             transparent = False,
             bbox_inches = 'tight',
@@ -125,3 +102,29 @@ def generateWorldMaps(targetFolder = "../out/maps/"):
         )
         
         plt.close(figure)
+
+
+def sortByCountry(coronaCasesOnDay, key = "cases"):
+    coronaCasesByCountry = {}
+
+    for coronaCases in coronaCasesOnDay:
+        iso = coronaCases["geoId"]
+        coronaCasesByCountry[iso] = int(coronaCases[key])
+    
+    return coronaCasesByCountry
+
+
+def generateCoronaCaseWorldMaps():
+    # Get daily values
+    coronaCasesByDay = loadCoronaCases("dateRep")
+
+    # Map daily cases to their countries format
+    coronaCases = {}
+    for day, coronaCasesOnDay in coronaCasesByDay.items():
+        coronaCases[day] = sortByCountry(coronaCasesOnDay)
+
+    def toColorCode(value):
+        value = max(0, value)
+        return (value, 0.0, value)
+
+    generateMaps(coronaCases, toColorCode)
