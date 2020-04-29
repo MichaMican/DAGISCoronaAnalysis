@@ -3,18 +3,23 @@ import matplotlib.pyplot as plt
 from matplotlib.transforms import Bbox
 import datetime
 import numpy as np
+import pycountry
 
 
 def plotTopFlopHealthSpendingCoronaCases(topFlopCountryData, population):
 
+    topAndFlopArray = []
+    topAndFlopArray.extend(topFlopCountryData["top"])
+    topAndFlopArray.extend(topFlopCountryData["flop"])
+
 
     place = 0
-    for countryData in topFlopCountryData["top"]:
+    for countryData in topAndFlopArray:
 
         x = []
         totalCases = []
         yCasesPer100kCitizens = []
-        totalCases = []
+        totalDeaths = []
         yDeathsPer100kCitizens = []
         countryPopulation = population[countryData["alpha_2"]] * 1000
 
@@ -33,83 +38,42 @@ def plotTopFlopHealthSpendingCoronaCases(topFlopCountryData, population):
                 else:
                     totalCases.append(int(caseData["cases"]))
 
-                if len(totalCases) > 0:
-                    totalCases.append(totalCases[-1] + int(caseData["deaths"]))
+                if len(totalDeaths) > 0:
+                    totalDeaths.append(totalDeaths[-1] + int(caseData["deaths"]))
                 else:
-                    totalCases.append(int(caseData["deaths"]))
+                    totalDeaths.append(int(caseData["deaths"]))
 
                 yCasesPer100kCitizens.append((totalCases[-1]/countryPopulation) * 100000)
-                yDeathsPer100kCitizens.append((totalCases[-1]/countryPopulation) * 100000)
+                yDeathsPer100kCitizens.append((totalDeaths[-1]/countryPopulation) * 100000)
 
             red = hex(85 * place)
             green = hex(255)
             blue = hex(0)
 
+            if(place > 2):
+                red = hex(255)
+                green = hex(85 * (place%3))
+                blue = hex(0)
+
             colorString = "#"+str(red).replace("0x","").zfill(2)+str(green).replace("0x","").zfill(2)+str(blue).replace("0x","").zfill(2)
 
+            countryObj = pycountry.countries.get(alpha_2=countryData["alpha_2"])
+
             plt.figure(1)
-            plt.plot_date(x, yCasesPer100kCitizens, color=colorString)
+            plt.plot_date(x, yCasesPer100kCitizens, color=colorString, linestyle='solid', marker='None', label=countryObj.name)
             plt.figure(2)
-            plt.plot_date(x, yDeathsPer100kCitizens, color=colorString)
+            plt.plot_date(x, yDeathsPer100kCitizens, color=colorString, linestyle='solid', marker='None', label=countryObj.name)
             place += 1
 
         else:
             log.logError("There is no countryPopulation data for " + countryData.alpha_2)
-
-    place = 0
-    for countryData in topFlopCountryData["flop"]:
-
-        x = []
-        totalCases = []
-        yCasesPer100kCitizens = []
-        totalCases = []
-        yDeathsPer100kCitizens = []
-        countryPopulation = population[countryData["alpha_2"]] * 1000
-
-        if countryPopulation > 0:
-
-            sortedCasesCountryData = sorted(countryData["coronaCases"], key=lambda e: int(
-            e["year"]) * 10000 + int(e["month"]) * 100 + int(e["day"]))
-
-
-            for caseData in sortedCasesCountryData:
-                x.append(datetime.date(int(caseData["year"]), int(
-                    caseData["month"]), int(caseData["day"])))
-                
-                if len(totalCases) > 0:
-                    totalCases.append(totalCases[-1] + int(caseData["cases"]))
-                else:
-                    totalCases.append(int(caseData["cases"]))
-
-                if len(totalCases) > 0:
-                    totalCases.append(totalCases[-1] + int(caseData["deaths"]))
-                else:
-                    totalCases.append(int(caseData["deaths"]))
-
-                yCasesPer100kCitizens.append((totalCases[-1]/countryPopulation) * 100000)
-                yDeathsPer100kCitizens.append((totalCases[-1]/countryPopulation) * 100000)
-
-            red = hex(255)
-            green = hex(85 * place)
-            blue = hex(0)
-
-            colorString = "#"+str(red).replace("0x","").zfill(2)+str(green).replace("0x","").zfill(2)+str(blue).replace("0x","").zfill(2)
-
-            plt.figure(1)
-            plt.plot_date(x, yCasesPer100kCitizens, color=colorString)
-            plt.figure(2)
-            plt.plot_date(x, yDeathsPer100kCitizens, color=colorString)
-            place += 1
-
-        else:
-            log.logError("There is no countryPopulation data for " + countryData.alpha_2)       
-    
 
     plt.figure(1)
     figure = plt.gcf()
     figure.set_size_inches(19.2, 10.8)
     title = "cases per 100k of top and flop 3 per head spender"
     plt.title(title)
+    plt.legend()
     plt.savefig("../out/healthSpending/cases.png", bbox_inches=Bbox(np.array([[0, 0], [19.2, 10.8]])))
     plt.clf()
     plt.close()
@@ -119,6 +83,7 @@ def plotTopFlopHealthSpendingCoronaCases(topFlopCountryData, population):
     figure.set_size_inches(19.2, 10.8)
     title = "deaths per 100k of top and flop 3 per head spender"
     plt.title(title)
+    plt.legend()
     plt.savefig("../out/healthSpending/deaths.png", bbox_inches=Bbox(np.array([[0, 0], [19.2, 10.8]])))
     plt.clf()
     plt.close()
