@@ -183,21 +183,20 @@ def plotGiniData(giniDataDict):
     for countryKey in giniDataDict:
         giniValue = []
         years = []
-        printProgressBar(progress, maxLength, "Saving plot for " + countryKey)
+        log.printProgressBar(progress, maxLength, "Saving plot for " + countryKey)
 
-        for year in giniDataDict[countryKey]:
-            if year.isdecimal():
-                if(giniDataDict[countryKey][year] != ''):
-                    giniValue.append(float(giniDataDict[countryKey][year]))
-                    years.append(int(year))
+        for countryGiniData in giniDataDict[countryKey]:
+            for year in countryGiniData.keys():
+                if year.isdecimal():
+                    if(countryGiniData[year] != ''):
+                        giniValue.append(float(countryGiniData[year]))
+                        years.append(int(year))
 
         if len(giniValue) > 0:
             #plt.plot(years, giniValue, marker="o", linestyle= "solid")
-
-            # bildet den den aktuellsten wert ab
+            #bildet den den aktuellsten wert ab
             #plt.bar(years[len(years) - 1], giniValue[len(giniValue) - 1])
-
-            # bildet alle werte ab
+            #bildet alle werte ab
             plt.bar(years, giniValue)
             plt.ylabel('Gini-Coefficient')
             plt.xlabel('Year')

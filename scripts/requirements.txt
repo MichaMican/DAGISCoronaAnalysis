@@ -2,5 +2,6 @@ matplotlib==3.2.1
 pytrends==4.7.2
 numpy==1.18.3
 pycountry==19.8.18
+dload==0.6
+pandas==1.0.3
 pyshp==2.1.0
-dload
