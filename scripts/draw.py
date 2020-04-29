@@ -110,7 +110,7 @@ def generateWorldMaps(targetFolder = "../out/maps/"):
             # Determine draw color
             relativeCases = 0
             if maxCases != 0:
-                relativeCases = cases / maxCases
+                relativeCases = max(cases / maxCases, 0)
 
             # Draw shape
             drawShape(shape, relativeCases)
