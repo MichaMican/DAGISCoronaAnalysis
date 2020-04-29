@@ -45,26 +45,26 @@ def downloadGiniCoefficient():
         zipObj.extractall(path)
     #an der stelle die csv scho umbenennen!!!
 
+    if(os.path.exists(path + "WorldBankGiniIndex.csv")):
+        os.remove(path + "WorldBankGiniIndex.csv")
+
     #!!funktioniert nur wenn worldbankginiindex.csv vorher schon in dem ordner ist ansonsten läuft das script leer!!
     for filename in os.listdir(path):
-        if(filename == "WorldBankGiniIndex.csv"):
-            log.log("Deleting first 4 rows of WorldBankGiniIndex.csv ...")
-            dataFrame = pd.read_csv(path + "WorldBankGiniIndex.csv", skiprows=4)
-            dataFrame.to_csv(path + "WorldBankGiniIndex.csv", index=False)
-            log.log("Deleting rows finished!")
-
-        elif(filename == "API_SI.POV.GINI_DS2_en_csv_v2_988343.csv"):
+        if(filename == "API_SI.POV.GINI_DS2_en_csv_v2_988343.csv"):
             try:
                 os.rename(path + "API_SI.POV.GINI_DS2_en_csv_v2_988343.csv", path + "WorldBankGiniIndex.csv")
-            except Exception:
-                os.remove(path + "WorldBankGiniIndex.csv")
-                os.rename(path + "API_SI.POV.GINI_DS2_en_csv_v2_988343.csv", path + "WorldBankGiniIndex.csv")
-                log.logInfo("The .csv file name is already assigned - deleting the old file")
+            except Exception as error:
+                log.logError("Renaming failed - Error: " + str(error))
         else:
             try:
                 os.remove(path + filename)
             except Exception:
                 log.logError("Removing unused .csv tables failed - Error")
+
+    log.log("Deleting first 4 rows of WorldBankGiniIndex.csv ...")
+    dataFrame = pd.read_csv(path + "WorldBankGiniIndex.csv", skiprows=4)
+    dataFrame.to_csv(path + "WorldBankGiniIndex.csv", index=False)
+    log.log("Deleting rows finished!")
 
 
 def downloadHealthSpendingPerCapita():

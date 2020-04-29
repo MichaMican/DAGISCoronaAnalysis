@@ -16,8 +16,8 @@ def main():
     log.logInfo("Creating Directories")
     createAllDir()
 
-    #log.logInfo("Downloading corona cases")
-    #download.downloadCoronaCases()
+    # log.logInfo("Downloading corona cases")
+    # download.downloadCoronaCases()
     # log.logInfo("Loading corona cases into memory")
     # coronaCases = load.loadCoronaCases()
 
