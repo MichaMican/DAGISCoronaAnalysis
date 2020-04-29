@@ -41,9 +41,9 @@ def main():
     googleTrends = load.loadGoogleTrendsData()
     log.logInfo("Creating Plots")
     plot.plotCaseGoogleTrends(coronaCases, googleTrends)
-    log.logInfo("Drawing maps")
-    draw.generateWorldMaps()
-    
+    log.logInfo("Drawing corona case maps")
+    draw.generateCoronaCaseWorldMaps()
+
     log.logInfo("Downloading Gini-Coefficient")
     download.downloadGiniCoefficient()
     
