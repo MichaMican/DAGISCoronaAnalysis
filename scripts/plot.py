@@ -88,15 +88,6 @@ def plotTopFlopHealthSpendingCoronaCases(topFlopCountryData, population):
     plt.clf()
     plt.close()
 
-    #deaths
-
-
-    # for countryKey in coronaCasesDataDict:
-    #     country = pycountry.countries.get(alpha_2 = countryKey)
-    #     countryAlpha3Key = country.alpha_3
-
-    #     #find latest in
-
 
 def plotCaseGoogleTrends(coronaCaseDataDict, googleTrendsDataDict):
     maxLength = len(coronaCaseDataDict)
