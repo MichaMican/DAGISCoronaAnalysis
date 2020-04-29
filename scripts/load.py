@@ -31,6 +31,8 @@ def loadGroupedCSV(filename, group, delimiter = COMMA):
 
     return groupedDict
 
+def loadPopulationGroupedByYear():
+    return loadGroupedCSV('../dat/temp/population.csv', "Time")
 
 def loadHealthSpendingPerCapita():
     return loadGroupedCSV('../dat/temp/healthSpendingPerCapita.csv', "COUNTRY")

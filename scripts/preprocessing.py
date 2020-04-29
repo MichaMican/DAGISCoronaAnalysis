@@ -1,6 +1,70 @@
 import csv
 import log
+import pycountry
 
+def extractCountryPopulationForYear(populationRaw, year):
+    population = {}
+    for countryPopulation in populationRaw[year]:
+        if countryPopulation["VarID"] == '2':
+            country = pycountry.countries.get(numeric=countryPopulation["LocID"].zfill(3))
+            if country != None:
+                population[country.alpha_2] = float(countryPopulation["PopTotal"])
+            else:
+                log.logWarning("Countrycode of " + countryPopulation["Location"] + "couldnt be parsed")
+
+    return population
+
+
+def getTopFlopCountries(coronaCasesDataDict, healthSpendingDict, count):
+    for countryKey in healthSpendingDict:
+        healthSpendingDict[countryKey] = sorted(healthSpendingDict[countryKey], key=lambda e:
+                                                int(e["YEAR"])
+                                                )
+
+    # sorted of dicts returns only keys as array
+    sortedHealthSpendingCountryKeys = sorted(healthSpendingDict, key=lambda e:
+                                             float(
+                                                 healthSpendingDict[e][-1]["Numeric"])
+                                             )
+
+    topCountries = []
+
+    counter = 0
+    for countryKey in reversed(sortedHealthSpendingCountryKeys):
+        try:
+            country = pycountry.countries.get(alpha_3 = countryKey)
+            conutryAlpha2 = country.alpha_2
+            if conutryAlpha2 in coronaCasesDataDict.keys():
+                counter += 1
+                topCountries.append({"coronaCases": coronaCasesDataDict[conutryAlpha2], "healthSpending": healthSpendingDict[countryKey], "alpha_2": conutryAlpha2})
+            
+            if counter >= count:
+                break
+
+        except Exception as e:
+            log.logWarning("Error while preprocessing sortedHealthSpending " + str(e))
+    
+    flopCountries = []
+
+    counter = 0
+    for countryKey in sortedHealthSpendingCountryKeys:
+        try:
+            country = pycountry.countries.get(alpha_3 = countryKey)
+            conutryAlpha2 = country.alpha_2
+            if conutryAlpha2 in coronaCasesDataDict.keys():
+                counter += 1
+                flopCountries.append({"coronaCases": coronaCasesDataDict[conutryAlpha2], "healthSpending": healthSpendingDict[countryKey], "alpha_2": conutryAlpha2})
+            
+            if counter >= count:
+                break
+
+        except Exception as e:
+            log.logWarning("Error while preprocessing sortedHealthSpending " + str(e))
+
+    return {
+        "top": topCountries,
+        "flop": flopCountries,
+    }
 
 def saveGiniGroupedDataToCsv(giniDataDictionary):
     maxLength = len(giniDataDictionary)
