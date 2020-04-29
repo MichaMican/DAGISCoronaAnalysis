@@ -39,7 +39,7 @@ def loadCoronaCases(group = "geoId"):
     return loadGroupedCSV('../dat/temp/coronaCases.csv', group)
 
 def loadGiniData():
-    return loadGroupedCSV('../dat/temp/WorldBankGiniIndex.csv', "Country Code")
+    return loadGroupedCSV('../dat/temp/giniData/WorldBankGiniIndex.csv', "Country Code")
 
 def loadGoogleTrendsData():
     returnDict = {}

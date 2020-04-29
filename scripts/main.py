@@ -30,9 +30,8 @@ def main():
     googleTrends = load.loadGoogleTrendsData()
     log.logInfo("Creating Plots")
     plot.plotCaseGoogleTrends(coronaCases, googleTrends)
-    log.logInfo("Drawing maps")
-    draw.generateWorldMaps()
-    
+    # log.logInfo("Drawing maps")
+    # draw.generateWorldMaps()
     log.logInfo("Loading Gini-Coefficient data into memory")
     giniCoefficient = load.loadGiniData()
     log.logInfo("Creating Gini-Coefficient Plots")
@@ -52,6 +51,7 @@ def createAllDir():
         "../dat/temp/",
         "../dat/temp/googleTrends/",
         "../dat/temp/countryBorders/",
+        "../dat/temp/giniData/"
         "../out/",
         "../out/caseNumberHistoryPerCountry/",
         "../out/maps/"
