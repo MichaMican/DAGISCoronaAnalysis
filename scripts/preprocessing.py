@@ -85,7 +85,7 @@ def getNewestGiniCoefficientDict(giniDataDictionary):
                 if year.isdecimal():
                     if countryGiniData[year] != "":
                         newestYearWithData = year
-                        currentDataValue = str(countryGiniData[year])
+                        currentDataValue = float(countryGiniData[year])
 
         countryObj = pycountry.countries.get(alpha_3=countryKey)
 
