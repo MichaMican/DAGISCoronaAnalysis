@@ -13,8 +13,8 @@ log.logInfo("Scriptpath: " + str(scriptPath))
 
 def main():
 
-    log.logInfo("Creating Directories")
-    createAllDir()
+    # log.logInfo("Creating Directories")
+    # createAllDir()
 
     # log.logInfo("Downloading corona cases")
     # download.downloadCoronaCases()
@@ -44,15 +44,16 @@ def main():
     # log.logInfo("Drawing maps")
     # draw.generateWorldMaps()
     
-    log.logInfo("Downloading Gini-Coefficient")
-    download.downloadGiniCoefficient()
+    # log.logInfo("Downloading Gini-Coefficient")
+    # download.downloadGiniCoefficient()
     
-    log.logInfo("Loading Gini-Coefficient data into memory")
+    # log.logInfo("Loading Gini-Coefficient data into memory")
     giniCoefficient = load.loadGiniData()
-    log.logInfo("Creating Gini-Coefficient Plots")
-    plot.plotGiniData(giniCoefficient)
-    log.logInfo("Creating Gini-Coefficient csv Table")
-    preprocessing.saveGiniGroupedDataToCsv(giniCoefficient)
+    # log.logInfo("Creating Gini-Coefficient Plots")
+    # plot.plotGiniData(giniCoefficient)
+    # log.logInfo("Creating Gini-Coefficient csv Table")
+    newestGiniCoefficientDict = preprocessing.getNewestGiniCoefficientDict(giniCoefficient)
+    foo = "bar"
 
 def createDir(dirname):
     Path(dirname).mkdir(parents = True, exist_ok = True)

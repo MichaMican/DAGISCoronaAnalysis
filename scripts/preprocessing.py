@@ -2,15 +2,19 @@ import csv
 import log
 import pycountry
 
+
 def extractCountryPopulationForYear(populationRaw, year):
     population = {}
     for countryPopulation in populationRaw[year]:
         if countryPopulation["VarID"] == '2':
-            country = pycountry.countries.get(numeric=countryPopulation["LocID"].zfill(3))
+            country = pycountry.countries.get(
+                numeric=countryPopulation["LocID"].zfill(3))
             if country != None:
-                population[country.alpha_2] = float(countryPopulation["PopTotal"])
+                population[country.alpha_2] = float(
+                    countryPopulation["PopTotal"])
             else:
-                log.logWarning("Countrycode of " + countryPopulation["Location"] + "couldnt be parsed")
+                log.logWarning(
+                    "Countrycode of " + countryPopulation["Location"] + "couldnt be parsed")
 
     return population
 
@@ -32,44 +36,47 @@ def getTopFlopCountries(coronaCasesDataDict, healthSpendingDict, count):
     counter = 0
     for countryKey in reversed(sortedHealthSpendingCountryKeys):
         try:
-            country = pycountry.countries.get(alpha_3 = countryKey)
+            country = pycountry.countries.get(alpha_3=countryKey)
             conutryAlpha2 = country.alpha_2
             if conutryAlpha2 in coronaCasesDataDict.keys():
                 counter += 1
-                topCountries.append({"coronaCases": coronaCasesDataDict[conutryAlpha2], "healthSpending": healthSpendingDict[countryKey], "alpha_2": conutryAlpha2})
-            
+                topCountries.append(
+                    {"coronaCases": coronaCasesDataDict[conutryAlpha2], "healthSpending": healthSpendingDict[countryKey], "alpha_2": conutryAlpha2})
+
             if counter >= count:
                 break
 
         except Exception as e:
-            log.logWarning("Error while preprocessing sortedHealthSpending " + str(e))
-    
+            log.logWarning(
+                "Error while preprocessing sortedHealthSpending " + str(e))
+
     flopCountries = []
 
     counter = 0
     for countryKey in sortedHealthSpendingCountryKeys:
         try:
-            country = pycountry.countries.get(alpha_3 = countryKey)
+            country = pycountry.countries.get(alpha_3=countryKey)
             conutryAlpha2 = country.alpha_2
             if conutryAlpha2 in coronaCasesDataDict.keys():
                 counter += 1
-                flopCountries.append({"coronaCases": coronaCasesDataDict[conutryAlpha2], "healthSpending": healthSpendingDict[countryKey], "alpha_2": conutryAlpha2})
-            
+                flopCountries.append(
+                    {"coronaCases": coronaCasesDataDict[conutryAlpha2], "healthSpending": healthSpendingDict[countryKey], "alpha_2": conutryAlpha2})
+
             if counter >= count:
                 break
 
         except Exception as e:
-            log.logWarning("Error while preprocessing sortedHealthSpending " + str(e))
+            log.logWarning(
+                "Error while preprocessing sortedHealthSpending " + str(e))
 
     return {
         "top": topCountries,
         "flop": flopCountries,
     }
 
-def saveGiniGroupedDataToCsv(giniDataDictionary):
-    maxLength = len(giniDataDictionary)
-    progress = 1
-    dictArray = []
+
+def getNewestGiniCoefficientDict(giniDataDictionary):
+    returnDict = {}
     for countryKey in giniDataDictionary:
         newestYearWithData = -1
         currentDataValue = -1
@@ -80,18 +87,28 @@ def saveGiniGroupedDataToCsv(giniDataDictionary):
                         newestYearWithData = year
                         currentDataValue = str(countryGiniData[year])
 
-        if int(newestYearWithData) > 0:
-            dictArray.append({
-                "countryKey": countryKey,
+        countryObj = pycountry.countries.get(alpha_3=countryKey)
+
+        if int(newestYearWithData) > 0 and countryObj != None:
+            returnDict[countryObj.alpha_2] = {
+                "countryKey_alpha2": countryObj.alpha_2,
+                "countryKey_alpha3": countryObj.alpha_3,
                 "lastYearWithData": newestYearWithData,
                 "value": currentDataValue,
-            })
+            }
+        else:
+            if int(newestYearWithData) > 0:
+                if countryKey.lower() == 'XKX'.lower():
+                    returnDict['XK'] = {
+                        "countryKey_alpha2": 'XK',
+                        "countryKey_alpha3": 'XKX',
+                        "lastYearWithData": newestYearWithData,
+                        "value": currentDataValue,
+                    }
+                else:
+                    log.log(countryKey + " was skipped because it has an invalid alpha 3 country key")
+            else:
+                log.log(countryKey +
+                        " was skipped because it has no Gini-Coefficient data")
 
-    try:
-        with open("../dat/temp/giniData/latestGiniCoefficient.csv", 'w') as csvfile:
-            writer = csv.DictWriter(csvfile, fieldnames=["countryKey", "lastYearWithData", "value"])
-            writer.writeheader()
-            for data in dictArray:
-                writer.writerow(data)
-    except IOError as err:
-        log.logError("I/O Error - Error: " + str(err))
+    return returnDict
