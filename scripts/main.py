@@ -57,6 +57,7 @@ def main():
     plot.plotTopFlopGiniCoefficientOverview(newestGiniCoefficientDict)
     log.logInfo("Creating gini coef map")
     preprocessing.generateGiniCoefficientMap(newestGiniCoefficientDict)
+    preprocessing.generateGiniCoronaMap(coronaCases, newestGiniCoefficientDict, preprocessing.extractCountryPopulationForYear(population, "2020"))
 
 def createDir(dirname):
     Path(dirname).mkdir(parents = True, exist_ok = True)
@@ -74,6 +75,8 @@ def createAllDir():
         "../out/",
         "../out/caseNumberHistoryPerCountry/",
         "../out/maps/",
+        "../out/maps/giniCaseCoef/",
+        "../out/maps/giniDeathCoef/",
         "../out/healthSpending/",
         "../out/giniCoefficient/"
     ])
