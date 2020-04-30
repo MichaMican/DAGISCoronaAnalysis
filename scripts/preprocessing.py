@@ -1,6 +1,7 @@
 import csv
 import log
 import pycountry
+import draw
 
 
 def extractCountryPopulationForYear(populationRaw, year):
@@ -75,6 +76,33 @@ def getTopFlopCountries(coronaCasesDataDict, healthSpendingDict, count):
     }
 
 
+def generateGiniCoefficientMap(newestGiniCoefficientDict):
+
+    dataToDraw = {}
+
+    for countryKey, countryGiniCoefData in newestGiniCoefficientDict.items():
+        dataToDraw[countryKey] = countryGiniCoefData["value"]
+
+    def toColor(val):
+        red = 0
+        green = 0
+        blue = 0
+
+        if val == 0:
+            red = 0
+            green = 0
+        elif val > 0.5:
+            red = 1
+            green = (1 - val)/0.5
+        else:
+            red = val/0.5
+            green = 1
+
+        return (red, green, blue)
+
+    draw.generateMaps({"gini-coeff": dataToDraw}, toColor)
+
+
 def getNewestGiniCoefficientDict(giniDataDictionary):
     returnDict = {}
     for countryKey in giniDataDictionary:
@@ -106,7 +134,8 @@ def getNewestGiniCoefficientDict(giniDataDictionary):
                         "value": currentDataValue,
                     }
                 else:
-                    log.log(countryKey + " was skipped because it has an invalid alpha 3 country key")
+                    log.log(
+                        countryKey + " was skipped because it has an invalid alpha 3 country key")
             else:
                 log.log(countryKey +
                         " was skipped because it has no Gini-Coefficient data")
