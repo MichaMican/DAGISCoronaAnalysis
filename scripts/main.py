@@ -51,9 +51,12 @@ def main():
     giniCoefficient = load.loadGiniData()
     log.logInfo("Creating Gini-Coefficient Plots")
     plot.plotGiniData(giniCoefficient)
-    log.logInfo("Creating Gini-Coefficient csv Table")
+    log.logInfo("Creating Gini-Coefficient grouped dictionary")
     newestGiniCoefficientDict = preprocessing.getNewestGiniCoefficientDict(giniCoefficient)
+    log.logInfo("Creating top flop gini coef. plot")
     plot.plotTopFlopGiniCoefficientOverview(newestGiniCoefficientDict)
+    log.logInfo("Creating gini coef map")
+    preprocessing.generateGiniCoefficientMap(newestGiniCoefficientDict)
 
 def createDir(dirname):
     Path(dirname).mkdir(parents = True, exist_ok = True)
