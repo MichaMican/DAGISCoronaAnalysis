@@ -132,7 +132,41 @@ def convertCasesDeathsToTotalCases(coronaCasesDataDict):
 
     return convertedDict
             
+def generateHealthSpendingMap(healthSpendingDict):
 
+    dataForMapGeneration = {"healthspending": {}}
+
+    for countryKey in healthSpendingDict:
+        sortedHealthSpendingByYear = sorted(healthSpendingDict[countryKey], key=lambda e:
+                                                int(e["YEAR"])
+                                                )
+        
+        countryKeyConverter = pycountry.countries.get(alpha_3 = sortedHealthSpendingByYear[-1]["COUNTRY"])
+
+        if countryKeyConverter != None:
+            dataForMapGeneration["healthspending"][countryKeyConverter.alpha_2] = float(sortedHealthSpendingByYear[-1]["Numeric"])
+
+    def toColor(val):
+        r = 0
+        g = 0
+        b = 0
+
+        if val == 0:
+            r = 0
+            g = 0
+        elif val > 0.5:
+            r = (1 - val)/0.5
+            g = 1
+        else:
+            r = 1
+            g = val/0.5
+
+        return (r,g,b)
+
+    draw.generateMaps(dataForMapGeneration, toColor, targetFolder="../out/healthSpending/")
+
+            
+    
 
 def generateGiniCoronaMap(coronaCasesDataDict, newestGiniCoefficientDict, populationOfYear):
 
