@@ -83,24 +83,7 @@ def generateGiniCoefficientMap(newestGiniCoefficientDict):
     for countryKey, countryGiniCoefData in newestGiniCoefficientDict.items():
         dataToDraw[countryKey] = countryGiniCoefData["value"]
 
-    def toColor(val):
-        red = 0
-        green = 0
-        blue = 0
-
-        if val == 0:
-            red = 0
-            green = 0
-        elif val > 0.5:
-            red = 1
-            green = (1 - val)/0.5
-        else:
-            red = val/0.5
-            green = 1
-
-        return (red, green, blue)
-
-    draw.generateMaps({"gini-coeff": dataToDraw}, toColor)
+    draw.generateMaps({"gini-coeff": dataToDraw}, colorMap = 'RdYlGn')
 
 def convertCasesDeathsToTotalCases(coronaCasesDataDict):
 
@@ -146,27 +129,10 @@ def generateHealthSpendingMap(healthSpendingDict):
         if countryKeyConverter != None:
             dataForMapGeneration["healthspending"][countryKeyConverter.alpha_2] = float(sortedHealthSpendingByYear[-1]["Numeric"])
 
-    def toColor(val):
-        r = 0
-        g = 0
-        b = 0
+    draw.generateMaps(dataForMapGeneration, colorMap = 'RdYlGn', targetFolder="../out/healthSpending/")
 
-        if val == 0:
-            r = 0
-            g = 0
-        elif val > 0.5:
-            r = (1 - val)/0.5
-            g = 1
-        else:
-            r = 1
-            g = val/0.5
 
-        return (r,g,b)
 
-    draw.generateMaps(dataForMapGeneration, toColor, targetFolder="../out/healthSpending/")
-
-            
-    
 
 def generateGiniCoronaMap(coronaCasesDataDict, newestGiniCoefficientDict, populationOfYear):
 
@@ -186,25 +152,8 @@ def generateGiniCoronaMap(coronaCasesDataDict, newestGiniCoefficientDict, popula
                 dataForMapCase[dayCaseOfCountry["dateRep"]][countryKey] = newestGiniCoefficientDict[countryKey]["value"]/100 * (dayCaseOfCountry["totalCases"]/(populationOfYear[countryKey] * 1000)) * 100000
                 dataForMapCase[dayCaseOfCountry["dateRep"]][countryKey] = newestGiniCoefficientDict[countryKey]["value"]/100 * (dayCaseOfCountry["totalDeaths"]/(populationOfYear[countryKey] * 1000)) * 100000
 
-    def toColor(val):
-        red = 0
-        green = 0
-        blue = 0
-
-        if val == 0:
-            red = 0
-            green = 0
-        elif val > 0.5:
-            red = 1
-            green = (1 - val)/0.5
-        else:
-            red = val/0.5
-            green = 1
-
-        return (red, green, blue)
-
-    draw.generateMaps(dataForMapCase, toColor, targetFolder="../out/maps/giniCaseCoef/")
-    draw.generateMaps(dataForMapDeaths, toColor, targetFolder="../out/maps/giniDeathCoef/")
+    draw.generateMaps(dataForMapCase, colorMap = 'RdYlGn', targetFolder="../out/maps/giniCaseCoef/")
+    draw.generateMaps(dataForMapDeaths, colorMap = 'RdYlGn', targetFolder="../out/maps/giniDeathCoef/")
 
 def getNewestGiniCoefficientDict(giniDataDictionary):
     returnDict = {}

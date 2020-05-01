@@ -49,7 +49,11 @@ def getMaxValueOnDay(dataOnDay):
     return maxValue
 
 
-def generateMaps(data, getNormalizer, legendUnits = None, targetFolder = "../out/maps/", mapShpPath = "../dat/temp/countryBorders/", shapeIDFieldName = "ISO", dpi = 300):
+def getLinearNormalizer(min, max):
+    return Normalize(vmin = min, vmax = max)
+
+
+def generateMaps(data, targetFolder = "../out/maps/", mapShpPath = "../dat/temp/countryBorders/", shapeIDFieldName = 'ISO', legendUnits = None, getNormalizer = getLinearNormalizer, colorMap = 'Reds', dpi = 300):
     # Read border shapefile
     sf = getShapeFileReader(mapShpPath)
     fieldIDs = getFieldIDs(sf)
@@ -70,7 +74,7 @@ def generateMaps(data, getNormalizer, legendUnits = None, targetFolder = "../out
         fig = plt.figure()
         plt.tight_layout()
         plt.axis("off")
-        cmap = plt.get_cmap('Reds', 100)
+        cmap = plt.get_cmap(colorMap, 100)
 
 
         for shapeRecord in sf.iterShapeRecords():
@@ -124,6 +128,4 @@ def generateCoronaCaseWorldMaps():
     for day, coronaCasesOnDay in coronaCasesByDay.items():
         coronaCases[day] = sortByCountry(coronaCasesOnDay)
 
-    getNormalizer = lambda min, max : Normalize(vmin = min, vmax = max)
-
-    generateMaps(coronaCases, getNormalizer, legendUnits = "New covid-19 cases")
+    generateMaps(coronaCases, legendUnits = "New covid-19 cases")
