@@ -1,6 +1,7 @@
 import csv
 import log
 import pycountry
+import draw
 
 
 def extractCountryPopulationForYear(populationRaw, year):
@@ -75,6 +76,136 @@ def getTopFlopCountries(coronaCasesDataDict, healthSpendingDict, count):
     }
 
 
+def generateGiniCoefficientMap(newestGiniCoefficientDict):
+
+    dataToDraw = {}
+
+    for countryKey, countryGiniCoefData in newestGiniCoefficientDict.items():
+        dataToDraw[countryKey] = countryGiniCoefData["value"]
+
+    def toColor(val):
+        red = 0
+        green = 0
+        blue = 0
+
+        if val == 0:
+            red = 0
+            green = 0
+        elif val > 0.5:
+            red = 1
+            green = (1 - val)/0.5
+        else:
+            red = val/0.5
+            green = 1
+
+        return (red, green, blue)
+
+    draw.generateMaps({"gini-coeff": dataToDraw}, toColor)
+
+def convertCasesDeathsToTotalCases(coronaCasesDataDict):
+
+    convertedDict = coronaCasesDataDict.copy()
+
+    for countryKey, coronaCasesOfCountry in convertedDict.items():
+        totalDeaths = []
+        totalCases = []
+
+        sortedCornaCasesOfCountry = sorted(coronaCasesOfCountry, key=lambda e: int(
+            e["year"]) * 10000 + int(e["month"]) * 100 + int(e["day"]))
+
+        for coronaCasesDaily in sortedCornaCasesOfCountry:
+            if len(totalCases) > 0:
+                totalCases.append(totalCases[-1] + int(coronaCasesDaily["cases"]))
+                coronaCasesDaily["totalCases"] = totalCases[-1]
+                
+            else:
+                totalCases.append(int(coronaCasesDaily["cases"]))
+                coronaCasesDaily["totalCases"] = totalCases[-1]
+
+            if len(totalDeaths) > 0:
+                totalDeaths.append(totalDeaths[-1] + int(coronaCasesDaily["deaths"]))
+                coronaCasesDaily["totalDeaths"] = totalCases[-1]
+
+            else:
+                totalDeaths.append(int(coronaCasesDaily["deaths"]))
+                coronaCasesDaily["totalDeaths"] = totalCases[-1]
+
+    return convertedDict
+            
+def generateHealthSpendingMap(healthSpendingDict):
+
+    dataForMapGeneration = {"healthspending": {}}
+
+    for countryKey in healthSpendingDict:
+        sortedHealthSpendingByYear = sorted(healthSpendingDict[countryKey], key=lambda e:
+                                                int(e["YEAR"])
+                                                )
+        
+        countryKeyConverter = pycountry.countries.get(alpha_3 = sortedHealthSpendingByYear[-1]["COUNTRY"])
+
+        if countryKeyConverter != None:
+            dataForMapGeneration["healthspending"][countryKeyConverter.alpha_2] = float(sortedHealthSpendingByYear[-1]["Numeric"])
+
+    def toColor(val):
+        r = 0
+        g = 0
+        b = 0
+
+        if val == 0:
+            r = 0
+            g = 0
+        elif val > 0.5:
+            r = (1 - val)/0.5
+            g = 1
+        else:
+            r = 1
+            g = val/0.5
+
+        return (r,g,b)
+
+    draw.generateMaps(dataForMapGeneration, toColor, targetFolder="../out/healthSpending/")
+
+            
+    
+
+def generateGiniCoronaMap(coronaCasesDataDict, newestGiniCoefficientDict, populationOfYear):
+
+    dataForMapCase = {}
+    dataForMapDeaths = {}
+
+    convertedCasesDataDict = convertCasesDeathsToTotalCases(coronaCasesDataDict)
+
+    for countryKey, casesOfCountry in convertedCasesDataDict.items():
+
+        for dayCaseOfCountry in casesOfCountry:
+            if dayCaseOfCountry["dateRep"] not in dataForMapCase.keys():
+                dataForMapCase[dayCaseOfCountry["dateRep"]] = {}
+                dataForMapDeaths[dayCaseOfCountry["dateRep"]] = {}
+
+            if countryKey in newestGiniCoefficientDict.keys() and countryKey in populationOfYear.keys():
+                dataForMapCase[dayCaseOfCountry["dateRep"]][countryKey] = newestGiniCoefficientDict[countryKey]["value"]/100 * (dayCaseOfCountry["totalCases"]/(populationOfYear[countryKey] * 1000)) * 100000
+                dataForMapCase[dayCaseOfCountry["dateRep"]][countryKey] = newestGiniCoefficientDict[countryKey]["value"]/100 * (dayCaseOfCountry["totalDeaths"]/(populationOfYear[countryKey] * 1000)) * 100000
+
+    def toColor(val):
+        red = 0
+        green = 0
+        blue = 0
+
+        if val == 0:
+            red = 0
+            green = 0
+        elif val > 0.5:
+            red = 1
+            green = (1 - val)/0.5
+        else:
+            red = val/0.5
+            green = 1
+
+        return (red, green, blue)
+
+    draw.generateMaps(dataForMapCase, toColor, targetFolder="../out/maps/giniCaseCoef/")
+    draw.generateMaps(dataForMapDeaths, toColor, targetFolder="../out/maps/giniDeathCoef/")
+
 def getNewestGiniCoefficientDict(giniDataDictionary):
     returnDict = {}
     for countryKey in giniDataDictionary:
@@ -106,7 +237,8 @@ def getNewestGiniCoefficientDict(giniDataDictionary):
                         "value": currentDataValue,
                     }
                 else:
-                    log.log(countryKey + " was skipped because it has an invalid alpha 3 country key")
+                    log.log(
+                        countryKey + " was skipped because it has an invalid alpha 3 country key")
             else:
                 log.log(countryKey +
                         " was skipped because it has no Gini-Coefficient data")
