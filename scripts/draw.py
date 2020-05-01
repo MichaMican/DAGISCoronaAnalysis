@@ -1,14 +1,14 @@
 from shapefile import Reader as ShapeFileReader
-import glob
+from glob import glob as getMatchingFiles
 import matplotlib.pyplot as plt
-from matplotlib.colors import to_hex
+from matplotlib.colors import to_hex, Normalize
 from load import loadCoronaCases
 import log
 
 
 # Open shape file from folder
 def getShapeFileReader(folder):
-    shapeFiles = glob.glob(folder + "*.shp")
+    shapeFiles = getMatchingFiles(folder + "*.shp")
     return ShapeFileReader(shapeFiles[0])
 
 # Associate the column names with column numbers
@@ -37,7 +37,7 @@ def drawShape(shape, color):
         # Draw this part
         x = [i[0] for i in shape.points[partStart:partEnd]]
         y = [i[1] for i in shape.points[partStart:partEnd]]
-        plt.fill(x, y, to_hex(color))
+        plt.fill(x, y, c = color)
 
 
 def getMaxValueOnDay(dataOnDay):
@@ -49,7 +49,7 @@ def getMaxValueOnDay(dataOnDay):
     return maxValue
 
 
-def generateMaps(data, toColorCode, targetFolder = "../out/maps/", mapShpPath = "../dat/temp/countryBorders/", shapeIDFieldName = "ISO"):
+def generateMaps(data, getNormalizer, legendUnits = None, targetFolder = "../out/maps/", mapShpPath = "../dat/temp/countryBorders/", shapeIDFieldName = "ISO", dpi = 300):
     # Read border shapefile
     sf = getShapeFileReader(mapShpPath)
     fieldIDs = getFieldIDs(sf)
@@ -61,15 +61,16 @@ def generateMaps(data, toColorCode, targetFolder = "../out/maps/", mapShpPath = 
     for mapId, dataOnDay in data.items():
         # Update progress bar
         currentMapNum = currentMapNum + 1
-        log.printProgressBar(currentMapNum, mapCount, "Generating world maps. Current map: " + mapId)
+        log.printProgressBar(currentMapNum, mapCount, "Generating maps. Current map: " + mapId)
 
         # Determine max cases and deaths on given day
         maxValue = getMaxValueOnDay(dataOnDay)
 
         # Create figure
-        figure = plt.figure()
+        fig = plt.figure()
         plt.tight_layout()
         plt.axis("off")
+        cmap = plt.get_cmap('Reds', 100)
 
 
         for shapeRecord in sf.iterShapeRecords():
@@ -83,25 +84,25 @@ def generateMaps(data, toColorCode, targetFolder = "../out/maps/", mapShpPath = 
                 value = dataOnDay[shapeID]
             
             # Determine draw color
-            relativeValue = 0
-            if maxValue > 0:
-                relativeValue = value / maxValue
-            
-            color = toColorCode(relativeValue)
+            color = cmap(value)
 
             # Draw shape
             drawShape(shape, color)
+        
+        sm = plt.cm.ScalarMappable(cmap = cmap, norm = getNormalizer(0, maxValue))
+        sm.set_array([])
+        plt.colorbar(sm, orientation = 'horizontal', label = legendUnits)
 
         # Display
         plt.savefig(
             targetFolder + mapId.replace('/', '-') + ".png",
-            dpi = 300,
-            transparent = False,
+            dpi = dpi,
             bbox_inches = 'tight',
-            pad_inches = 0
+            #pad_inches = 0,
+            transparent = False
         )
         
-        plt.close(figure)
+        plt.close(fig)
 
 
 def sortByCountry(coronaCasesOnDay, key = "cases"):
@@ -123,8 +124,6 @@ def generateCoronaCaseWorldMaps():
     for day, coronaCasesOnDay in coronaCasesByDay.items():
         coronaCases[day] = sortByCountry(coronaCasesOnDay)
 
-    def toColorCode(value):
-        value = max(0, value)
-        return (value, 0.0, value)
+    getNormalizer = lambda min, max : Normalize(vmin = min, vmax = max)
 
-    generateMaps(coronaCases, toColorCode)
+    generateMaps(coronaCases, getNormalizer, legendUnits = "New covid-19 cases")
