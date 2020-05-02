@@ -40,20 +40,29 @@ def drawShape(shape, color):
         plt.fill(x, y, c = color)
 
 
-def getMaxValueOnDay(dataOnDay):
-    maxValue = 0
+def getExtremeValuesOnDay(dataOnDay):
+    maxValue = None
+    minValue = None
 
     for value in dataOnDay.values():
-        maxValue = max(maxValue, value)
+        if maxValue == None:
+            maxValue = value
+        else:
+            maxValue = max(maxValue, value)
+
+        if minValue == None:
+            minValue = value
+        else:
+            minValue = min(minValue, value)
     
-    return maxValue
+    return (minValue, maxValue)
 
 
 def getLinearNormalizer(min, max):
     return Normalize(vmin = min, vmax = max)
 
 
-def generateMaps(data, targetFolder = "../out/maps/", mapShpPath = "../dat/temp/countryBorders/", shapeIDFieldName = 'ISO', legendUnits = None, getNormalizer = getLinearNormalizer, colorMap = 'Reds', dpi = 300):
+def generateMaps(data, targetFolder = "../out/maps/", mapShpPath = "../dat/temp/countryBorders/", shapeIDFieldName = 'ISO', legendUnits = None, getNormalizer = getLinearNormalizer, colorMap = 'Reds', noDataColor = '#000000', dpi = 300):
     # Read border shapefile
     sf = getShapeFileReader(mapShpPath)
     fieldIDs = getFieldIDs(sf)
@@ -63,17 +72,17 @@ def generateMaps(data, targetFolder = "../out/maps/", mapShpPath = "../dat/temp/
     
     currentMapNum = 0
     for mapId, dataOnDay in data.items():
-        # Update progress bar
-        currentMapNum = currentMapNum + 1
-        log.printProgressBar(currentMapNum, mapCount, "Generating maps. Current map: " + mapId)
+        # Determine max value on given day
+        minValue, maxValue = getExtremeValuesOnDay(dataOnDay)
 
-        # Determine max cases and deaths on given day
-        maxValue = getMaxValueOnDay(dataOnDay)
+        # Update progress bar
+        log.printProgressBar(currentMapNum, mapCount, "Generating maps. Current map: " + mapId)
+        currentMapNum = currentMapNum + 1
 
         # Create figure
         fig = plt.figure()
         plt.tight_layout()
-        plt.axis("off")
+        plt.axis('off')
         cmap = plt.get_cmap(colorMap, 100)
 
 
@@ -82,18 +91,20 @@ def generateMaps(data, targetFolder = "../out/maps/", mapShpPath = "../dat/temp/
             record = shapeRecord.record
             shapeID = record[fieldIDs[shapeIDFieldName]]
 
-            # Get cases and deaths for corrent country, on current day
-            value = 0
+            # Get value for corrent country, on current day
+            value = None
             if shapeID in dataOnDay:
                 value = dataOnDay[shapeID]
             
             # Determine draw color
-            color = cmap(value)
+            color = noDataColor
+            if value != None:
+                color = cmap(value)
 
             # Draw shape
             drawShape(shape, color)
         
-        sm = plt.cm.ScalarMappable(cmap = cmap, norm = getNormalizer(0, maxValue))
+        sm = plt.cm.ScalarMappable(cmap = cmap, norm = getNormalizer(minValue, maxValue))
         sm.set_array([])
         plt.colorbar(sm, orientation = 'horizontal', label = legendUnits)
 
