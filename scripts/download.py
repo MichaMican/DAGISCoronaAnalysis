@@ -11,11 +11,17 @@ import time
 import dload
 import pandas as pd
 
+
 def request(source, target):
     log.log("Downloading...")
     result = requests.get(source)
     open(target, "wb").write(result.content)
     log.log("Download finished!")
+
+def downloadWorldPopulation():
+    source = "https://population.un.org/wpp/Download/Files/1_Indicators%20(Standard)/CSV_FILES/WPP2019_TotalPopulationBySex.csv"
+    target = "../dat/temp/population.csv"
+    request(source, target)
 
 def downloadCoronaCases():
     source = "https://opendata.ecdc.europa.eu/covid19/casedistribution/csv"
@@ -35,25 +41,25 @@ def downloadGiniCoefficient():
     with zipfile.ZipFile(target, 'r') as zipObj:
         zipObj.extractall(path)
 
-    for filename in os.listdir(path):
-        if(filename == "WorldBankGiniIndex.csv"):
-            log.log("Deleting first 4 rows of WorldBankGiniIndex.csv ...")
-            dataFrame = pd.read_csv(path + "WorldBankGiniIndex.csv", skiprows=4)
-            dataFrame.to_csv(path + "WorldBankGiniIndex.csv", index=False)
-            log.log("Deleting rows finished!")
+    if(os.path.exists(path + "WorldBankGiniIndex.csv")):
+        os.remove(path + "WorldBankGiniIndex.csv")
 
-        elif(filename == "API_SI.POV.GINI_DS2_en_csv_v2_988343.csv"):
+    for filename in os.listdir(path):
+        if(filename == "API_SI.POV.GINI_DS2_en_csv_v2_988343.csv"):
             try:
                 os.rename(path + "API_SI.POV.GINI_DS2_en_csv_v2_988343.csv", path + "WorldBankGiniIndex.csv")
-            except Exception:
-                os.remove(path + "WorldBankGiniIndex.csv")
-                os.rename(path + "API_SI.POV.GINI_DS2_en_csv_v2_988343.csv", path + "WorldBankGiniIndex.csv")
-                log.logInfo("The .csv file name is already assigned - deleting the old file")
+            except Exception as error:
+                log.logError("Renaming failed - Error: " + str(error))
         else:
             try:
                 os.remove(path + filename)
             except Exception:
                 log.logError("Removing unused .csv tables failed - Error")
+
+    log.log("Deleting first 4 rows of WorldBankGiniIndex.csv ...")
+    dataFrame = pd.read_csv(path + "WorldBankGiniIndex.csv", skiprows=4)
+    dataFrame.to_csv(path + "WorldBankGiniIndex.csv", index=False)
+    log.log("Deleting rows finished!")
 
 
 def downloadHealthSpendingPerCapita():
