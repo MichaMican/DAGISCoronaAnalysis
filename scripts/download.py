@@ -11,15 +11,16 @@ import time
 import dload
 import pandas as pd
 
-
-def downloadCoronaCases():
-    #evtl. für requests ne extra funktion aufmachen @zukunftsphilipp
-    source = "https://opendata.ecdc.europa.eu/covid19/casedistribution/csv"
-    target = "../dat/temp/coronaCases.csv"
+def request(source, target):
     log.log("Downloading...")
     result = requests.get(source)
     open(target, "wb").write(result.content)
     log.log("Download finished!")
+
+def downloadCoronaCases():
+    source = "https://opendata.ecdc.europa.eu/covid19/casedistribution/csv"
+    target = "../dat/temp/coronaCases.csv"
+    request(source, target)
 
 def downloadCountryBorders():
     source = "https://opendata.arcgis.com/datasets/252471276c9941729543be8789e06e12_0.zip"
@@ -29,16 +30,11 @@ def downloadGiniCoefficient():
     source = "https://api.worldbank.org/v2/en/indicator/SI.POV.GINI?downloadformat=csv"
     path = "../dat/temp/giniData/"
     target = path + "GiniData.zip"
-    log.log("Downloading...")
-    result = requests.get(source)
-    open(target, "wb").write(result.content)
-    log.log("Download finished!")
+    request(source, target)
 
     with zipfile.ZipFile(target, 'r') as zipObj:
         zipObj.extractall(path)
-    #an der stelle die csv scho umbenennen!!!
 
-    #!!funktioniert nur wenn worldbankginiindex.csv vorher schon in dem ordner ist ansonsten läuft das script leer!!
     for filename in os.listdir(path):
         if(filename == "WorldBankGiniIndex.csv"):
             log.log("Deleting first 4 rows of WorldBankGiniIndex.csv ...")
@@ -63,10 +59,7 @@ def downloadGiniCoefficient():
 def downloadHealthSpendingPerCapita():
     source = "http://apps.who.int/gho/athena/api/GHO/GHED_CHE_pc_US_SHA2011/?format=csv"
     target = "../dat/temp/healthSpendingPerCapita.csv"
-    log.log("Downloading...")
-    result = requests.get(source)
-    open(target, "wb").write(result.content)
-    log.log("Download finished!")
+    request(source, target)
 
 
 def downloadGoogleTrendsData(geoIdArray):
