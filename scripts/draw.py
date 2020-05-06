@@ -2,6 +2,7 @@ from shapefile import Reader as ShapeFileReader
 from glob import glob as getMatchingFiles
 import matplotlib.pyplot as plt
 from matplotlib.colors import to_hex, Normalize
+import imageio
 from load import loadCoronaCases
 import log
 
@@ -82,6 +83,7 @@ def generateMaps(data, targetFolder = "../out/maps/", mapShpPath = "../dat/temp/
 
         # Create figure
         fig = plt.figure()
+        plt.title(mapId)
         plt.tight_layout()
         plt.axis('off')
         cmap = plt.get_cmap(colorMap)
@@ -120,3 +122,10 @@ def generateMaps(data, targetFolder = "../out/maps/", mapShpPath = "../dat/temp/
         )
         
         plt.close(fig)
+
+
+def generateGIF(target, sourceFileNames, frameLength = 0.5):
+    with imageio.get_writer(target, mode = 'I', duration = frameLength) as writer:
+        for sourceFileName in sourceFileNames:
+            image = imageio.imread(sourceFileName)
+            writer.append_data(image)
