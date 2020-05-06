@@ -7,12 +7,13 @@ import log
 
 
 # Open shape file from folder
-def getShapeFileReader(folder):
-    shapeFiles = getMatchingFiles(folder + "*.shp")
-    return ShapeFileReader(shapeFiles[0])
+def __getShapeFileReader(folder):
+    # Find first .shp file in given folder
+    shapeFile = getMatchingFiles(folder + "*.shp")[0]
+    return ShapeFileReader(shapeFile)
 
 # Associate the column names with column numbers
-def getFieldIDs(sf):
+def __getFieldIDs(sf):
     fieldIDs = {}
 
     for i, field in enumerate(sf.fields, start = -1):
@@ -23,7 +24,7 @@ def getFieldIDs(sf):
     return fieldIDs
 
 
-def drawShape(shape, color):
+def __drawShape(shape, color):
     # Itarte through the parts of the shape
     for i in range(len(shape.parts)):
         partStart = shape.parts[i]
@@ -37,14 +38,14 @@ def drawShape(shape, color):
         # Draw this part
         x = [i[0] for i in shape.points[partStart:partEnd]]
         y = [i[1] for i in shape.points[partStart:partEnd]]
-        plt.fill(x, y, c = color)
+        plt.fill(x, y, c = color, linewidth = 0)
 
 
-def getExtremeValuesOnDay(dataOnDay):
+def __getExtremeValuesForMap(dataInMap):
     maxValue = None
     minValue = None
 
-    for value in dataOnDay.values():
+    for value in dataInMap.values():
         if maxValue == None:
             maxValue = value
         else:
@@ -64,26 +65,27 @@ def getLinearNormalizer(min, max):
 
 def generateMaps(data, targetFolder = "../out/maps/", mapShpPath = "../dat/temp/countryBorders/", shapeIDFieldName = 'ISO', legendUnits = None, getNormalizer = getLinearNormalizer, colorMap = 'Reds', noDataColor = '#000000', dpi = 300):
     # Read border shapefile
-    sf = getShapeFileReader(mapShpPath)
-    fieldIDs = getFieldIDs(sf)
+    sf = __getShapeFileReader(mapShpPath)
+    fieldIDs = __getFieldIDs(sf)
 
     # Get number of maps to generate
     mapCount = len(data)
     
     currentMapNum = 0
-    for mapId, dataOnDay in data.items():
-        # Determine max value on given day
-        minValue, maxValue = getExtremeValuesOnDay(dataOnDay)
-
+    for mapId, dataInMap in data.items():
         # Update progress bar
         log.printProgressBar(currentMapNum, mapCount, "Generating maps. Current map: " + mapId)
         currentMapNum = currentMapNum + 1
+
+        # Determine max value for given map
+        minValue, maxValue = __getExtremeValuesForMap(dataInMap)
 
         # Create figure
         fig = plt.figure()
         plt.tight_layout()
         plt.axis('off')
-        cmap = plt.get_cmap(colorMap, 100)
+        cmap = plt.get_cmap(colorMap)
+        normalize = getNormalizer(minValue, maxValue)
 
 
         for shapeRecord in sf.iterShapeRecords():
@@ -91,10 +93,10 @@ def generateMaps(data, targetFolder = "../out/maps/", mapShpPath = "../dat/temp/
             record = shapeRecord.record
             shapeID = record[fieldIDs[shapeIDFieldName]]
 
-            # Get value for corrent country, on current day
+            # Get value for corrent country, for current map
             value = None
-            if shapeID in dataOnDay:
-                value = dataOnDay[shapeID]
+            if shapeID in dataInMap:
+                value = normalize(dataInMap[shapeID])
             
             # Determine draw color
             color = noDataColor
@@ -102,9 +104,9 @@ def generateMaps(data, targetFolder = "../out/maps/", mapShpPath = "../dat/temp/
                 color = cmap(value)
 
             # Draw shape
-            drawShape(shape, color)
+            __drawShape(shape, color)
         
-        sm = plt.cm.ScalarMappable(cmap = cmap, norm = getNormalizer(minValue, maxValue))
+        sm = plt.cm.ScalarMappable(cmap = cmap, norm = normalize)
         sm.set_array([])
         plt.colorbar(sm, orientation = 'horizontal', label = legendUnits)
 
@@ -112,31 +114,9 @@ def generateMaps(data, targetFolder = "../out/maps/", mapShpPath = "../dat/temp/
         plt.savefig(
             targetFolder + mapId.replace('/', '-') + ".png",
             dpi = dpi,
-            bbox_inches = 'tight',
+            #bbox_inches = 'tight',
             #pad_inches = 0,
             transparent = False
         )
         
         plt.close(fig)
-
-
-def sortByCountry(coronaCasesOnDay, key = "cases"):
-    coronaCasesByCountry = {}
-
-    for coronaCases in coronaCasesOnDay:
-        iso = coronaCases["geoId"]
-        coronaCasesByCountry[iso] = int(coronaCases[key])
-    
-    return coronaCasesByCountry
-
-
-def generateCoronaCaseWorldMaps():
-    # Get daily values
-    coronaCasesByDay = loadCoronaCases("dateRep")
-
-    # Map daily cases to their countries format
-    coronaCases = {}
-    for day, coronaCasesOnDay in coronaCasesByDay.items():
-        coronaCases[day] = sortByCountry(coronaCasesOnDay)
-
-    generateMaps(coronaCases, legendUnits = "New covid-19 cases")

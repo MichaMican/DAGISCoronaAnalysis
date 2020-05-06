@@ -83,7 +83,7 @@ def generateGiniCoefficientMap(newestGiniCoefficientDict):
     for countryKey, countryGiniCoefData in newestGiniCoefficientDict.items():
         dataToDraw[countryKey] = countryGiniCoefData["value"]
 
-    draw.generateMaps({"gini-coeff": dataToDraw}, colorMap = 'RdYlGn')
+    draw.generateMaps({"gini-coeff": dataToDraw}, colorMap = 'coolwarm')
 
 def convertCasesDeathsToTotalCases(coronaCasesDataDict):
 
@@ -114,10 +114,9 @@ def convertCasesDeathsToTotalCases(coronaCasesDataDict):
                 coronaCasesDaily["totalDeaths"] = totalCases[-1]
 
     return convertedDict
-            
-def generateHealthSpendingMap(healthSpendingDict):
 
-    dataForMapGeneration = {"healthspending": {}}
+def generateHealthSpendingMap(healthSpendingDict):
+    healthspending = {}
 
     for countryKey in healthSpendingDict:
         sortedHealthSpendingByYear = sorted(healthSpendingDict[countryKey], key=lambda e:
@@ -127,9 +126,9 @@ def generateHealthSpendingMap(healthSpendingDict):
         countryKeyConverter = pycountry.countries.get(alpha_3 = sortedHealthSpendingByYear[-1]["COUNTRY"])
 
         if countryKeyConverter != None:
-            dataForMapGeneration["healthspending"][countryKeyConverter.alpha_2] = float(sortedHealthSpendingByYear[-1]["Numeric"])
+            healthspending[countryKeyConverter.alpha_2] = float(sortedHealthSpendingByYear[-1]["Numeric"])
 
-    draw.generateMaps(dataForMapGeneration, colorMap = 'RdYlGn', targetFolder="../out/healthSpending/")
+    draw.generateMaps({"healthspending": healthspending}, colorMap = 'RdYlGn', targetFolder="../out/healthSpending/")
 
 
 
@@ -144,16 +143,16 @@ def generateGiniCoronaMap(coronaCasesDataDict, newestGiniCoefficientDict, popula
     for countryKey, casesOfCountry in convertedCasesDataDict.items():
 
         for dayCaseOfCountry in casesOfCountry:
-            if dayCaseOfCountry["dateRep"] not in dataForMapCase.keys():
-                dataForMapCase[dayCaseOfCountry["dateRep"]] = {}
-                dataForMapDeaths[dayCaseOfCountry["dateRep"]] = {}
+            if dayCaseOfCountry["date"] not in dataForMapCase.keys():
+                dataForMapCase[dayCaseOfCountry["date"]] = {}
+                dataForMapDeaths[dayCaseOfCountry["date"]] = {}
 
             if countryKey in newestGiniCoefficientDict.keys() and countryKey in populationOfYear.keys():
-                dataForMapCase[dayCaseOfCountry["dateRep"]][countryKey] = newestGiniCoefficientDict[countryKey]["value"]/100 * (dayCaseOfCountry["totalCases"]/(populationOfYear[countryKey] * 1000)) * 100000
-                dataForMapCase[dayCaseOfCountry["dateRep"]][countryKey] = newestGiniCoefficientDict[countryKey]["value"]/100 * (dayCaseOfCountry["totalDeaths"]/(populationOfYear[countryKey] * 1000)) * 100000
+                dataForMapCase[dayCaseOfCountry["date"]][countryKey] = newestGiniCoefficientDict[countryKey]["value"]/100 * (dayCaseOfCountry["totalCases"]/(populationOfYear[countryKey] * 1000)) * 100000
+                dataForMapDeaths[dayCaseOfCountry["date"]][countryKey] = newestGiniCoefficientDict[countryKey]["value"]/100 * (dayCaseOfCountry["totalDeaths"]/(populationOfYear[countryKey] * 1000)) * 100000
 
-    draw.generateMaps(dataForMapCase, colorMap = 'RdYlGn', targetFolder="../out/maps/giniCaseCoef/")
-    draw.generateMaps(dataForMapDeaths, colorMap = 'RdYlGn', targetFolder="../out/maps/giniDeathCoef/")
+    draw.generateMaps(dataForMapCase, colorMap = 'coolwarm', targetFolder="../out/maps/giniCaseCoef/")
+    draw.generateMaps(dataForMapDeaths, colorMap = 'coolwarm', targetFolder="../out/maps/giniDeathCoef/")
 
 def getNewestGiniCoefficientDict(giniDataDictionary):
     returnDict = {}
@@ -193,3 +192,26 @@ def getNewestGiniCoefficientDict(giniDataDictionary):
                         " was skipped because it has no Gini-Coefficient data")
 
     return returnDict
+
+
+
+def getGroupedValues(valuesOnDay, valueKey, groupKey):
+    valuesByCountry = {}
+
+    for values in valuesOnDay:
+        iso = values[groupKey]
+        valuesByCountry[iso] = int(values[valueKey])
+    
+    return valuesByCountry
+
+
+def generateCoronaCaseWorldMaps(coronaCasesByDay):
+    # Map daily cases to their countries format
+    coronaCases = {}
+    coronaDeaths = {}
+    for day, coronaCasesOnDay in coronaCasesByDay.items():
+        coronaCases[day] = getGroupedValues(coronaCasesOnDay, "cases", "countryCode")
+        coronaDeaths[day] = getGroupedValues(coronaCasesOnDay, "deaths", "countryCode")
+
+    draw.generateMaps(coronaCases, legendUnits = "New covid-19 cases", targetFolder = "../out/maps/cases/")
+    draw.generateMaps(coronaDeaths, legendUnits = "New covid-19 deaths", targetFolder = "../out/maps/deaths/")

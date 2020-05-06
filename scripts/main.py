@@ -20,6 +20,7 @@ def main():
     download.downloadCoronaCases()
     log.logInfo("Loading corona cases into memory")
     coronaCases = load.loadCoronaCases()
+    coronaCasesByDay = load.loadCoronaCases("date")
 
     log.logInfo("Downloading world popoulation")
     download.downloadWorldPopulation()
@@ -42,7 +43,7 @@ def main():
     log.logInfo("Creating Plots")
     plot.plotCaseGoogleTrends(coronaCases, googleTrends)
     log.logInfo("Drawing corona case maps")
-    draw.generateCoronaCaseWorldMaps()
+    preprocessing.generateCoronaCaseWorldMaps(coronaCasesByDay)
 
     log.logInfo("Downloading Gini-Coefficient")
     download.downloadGiniCoefficient()
@@ -78,6 +79,8 @@ def createAllDir():
         "../out/",
         "../out/caseNumberHistoryPerCountry/",
         "../out/maps/",
+        "../out/maps/cases/",
+        "../out/maps/deaths/",
         "../out/maps/giniCaseCoef/",
         "../out/maps/giniDeathCoef/",
         "../out/healthSpending/",
