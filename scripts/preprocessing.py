@@ -227,7 +227,7 @@ def generateCoronaCaseWorldMaps(coronaCasesByDay):
         coronaCasesTotalToday = {}
         coronaDeathsTotalToday = {}
 
-        for country, casesToday in coronaCases[day]:
+        for country, casesToday in coronaCases[day].items():
             casesSoFar = 0
 
             if country in coronaCasesTotalSoFar:
@@ -235,7 +235,7 @@ def generateCoronaCaseWorldMaps(coronaCasesByDay):
             
             coronaCasesTotalToday[country] = casesSoFar + casesToday
 
-        for country, deathsToday in coronaDeaths[day]:
+        for country, deathsToday in coronaDeaths[day].items():
             deathsSoFar = 0
 
             if country in coronaDeathsTotalSoFar:
