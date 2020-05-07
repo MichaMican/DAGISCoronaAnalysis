@@ -215,9 +215,38 @@ def generateCoronaCaseWorldMaps(coronaCasesByDay):
     # Map daily cases to their countries format
     coronaCases = {}
     coronaDeaths = {}
-    for day, coronaCasesOnDay in coronaCasesByDay.items():
+    coronaCasesTotal = {}
+    coronaDeathsTotal = {}
+    coronaCasesTotalSoFar = {}
+    coronaDeathsTotalSoFar = {}
+    for day in sortedDates:
+        coronaCasesOnDay = coronaCasesByDay[day]
         coronaCases[day] = getGroupedValues(coronaCasesOnDay, "cases", "countryCode")
         coronaDeaths[day] = getGroupedValues(coronaCasesOnDay, "deaths", "countryCode")
+
+        coronaCasesTotalToday = {}
+        coronaDeathsTotalToday = {}
+
+        for country, casesToday in coronaCases[day]:
+            casesSoFar = 0
+
+            if country in coronaCasesTotalSoFar:
+                casesSoFar = coronaCasesTotalSoFar[country]
+            
+            coronaCasesTotalToday[country] = casesSoFar + casesToday
+
+        for country, deathsToday in coronaDeaths[day]:
+            deathsSoFar = 0
+
+            if country in coronaDeathsTotalSoFar:
+                deathsSoFar = coronaDeathsTotalSoFar[country]
+            
+            coronaDeathsTotalToday[country] = deathsSoFar + deathsToday
+        
+        coronaCasesTotal[day] = coronaCasesTotalToday
+        coronaDeathsTotal[day] = coronaDeathsTotalToday
+        coronaCasesTotalSoFar = coronaCasesTotalToday
+        coronaDeathsTotalSoFar = coronaDeathsTotalToday
 
     # Generate maps
     draw.generateMaps(coronaCases, legendUnits = "Neue Coronafälle pro Tag", targetFolder = "../out/maps/cases/")
