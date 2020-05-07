@@ -173,12 +173,12 @@ def plotCaseGoogleTrends(coronaCaseDataDict, googleTrendsDataDict):
         ax3.yaxis.label.set_color("green")
         ax3.tick_params(axis='y', colors="green")
 
-        if coronaCaseDataDict[countryKey][0]["geoId"] in googleTrendsDataDict.keys():
+        if coronaCaseDataDict[countryKey][0]["countryCode"] in googleTrendsDataDict.keys():
 
             xTrends = []
             yTrends = []
 
-            for dayData in googleTrendsDataDict[coronaCaseDataDict[countryKey][0]["geoId"]]:
+            for dayData in googleTrendsDataDict[coronaCaseDataDict[countryKey][0]["countryCode"]]:
                 datetimeTrends = datetime.datetime.strptime(
                     dayData["date"], "%Y-%m-%d")
                 xTrends.append(datetimeTrends.date())
@@ -196,8 +196,7 @@ def plotCaseGoogleTrends(coronaCaseDataDict, googleTrendsDataDict):
 
         figure = plt.gcf()
         figure.set_size_inches(19.2, 10.8)
-        title = coronaCaseDataDict[countryKey][0]["countriesAndTerritories"].replace(
-            "_", " ")
+        title = coronaCaseDataDict[countryKey][0]["areaName"]
         plt.title(title)
         plt.savefig("../out/caseNumberHistoryPerCountry/" + countryKey +
                     ".png", bbox_inches=Bbox(np.array([[0, 0], [19.2, 10.8]])))
