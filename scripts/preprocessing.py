@@ -251,7 +251,9 @@ def generateCoronaCaseWorldMaps(coronaCasesByDay):
     # Generate maps
     draw.generateMaps(coronaCases, legendUnits = "Neue Coronafälle pro Tag", targetFolder = "../out/maps/cases/")
     draw.generateMaps(coronaDeaths, legendUnits = "Neue Coronatodesfälle pro Tag", targetFolder = "../out/maps/deaths/")
-
+    draw.generateMaps(coronaCasesTotal, legendUnits = "Coronafälle gesamt", targetFolder = "../out/maps/casesTotal/")
+    draw.generateMaps(coronaDeathsTotal, legendUnits = "Coronatodesfälle gesamt", targetFolder = "../out/maps/deathsTotal/")
+    
     # Generate GIFs
     log.printProgressBar(0, 2, "Generating GIFs. Current GIF: covid-19 cases")
     caseMapFiles = map(lambda date: "../out/maps/cases/" + date.replace('/', '-') + ".png", sortedDates)
