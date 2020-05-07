@@ -5,7 +5,7 @@ cd scripts
 
 echo Installing requirements...
 
-pip install -r requirements.txt >> nul
+pip install -r requirements.txt
 
 if %errorlevel%==1 (
 	echo Failed to install requirements!
