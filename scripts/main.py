@@ -81,6 +81,8 @@ def createAllDir():
         "../out/maps/",
         "../out/maps/cases/",
         "../out/maps/deaths/",
+        "../out/maps/casesTotal/",
+        "../out/maps/deathsTotal/",
         "../out/maps/giniCaseCoef/",
         "../out/maps/giniDeathCoef/",
         "../out/healthSpending/",

@@ -215,21 +215,60 @@ def generateCoronaCaseWorldMaps(coronaCasesByDay):
     # Map daily cases to their countries format
     coronaCases = {}
     coronaDeaths = {}
-    for day, coronaCasesOnDay in coronaCasesByDay.items():
+    coronaCasesTotal = {}
+    coronaDeathsTotal = {}
+    coronaCasesTotalSoFar = {}
+    coronaDeathsTotalSoFar = {}
+    for day in sortedDates:
+        coronaCasesOnDay = coronaCasesByDay[day]
         coronaCases[day] = getGroupedValues(coronaCasesOnDay, "cases", "countryCode")
         coronaDeaths[day] = getGroupedValues(coronaCasesOnDay, "deaths", "countryCode")
+
+        coronaCasesTotalToday = {}
+        coronaDeathsTotalToday = {}
+
+        for country, casesToday in coronaCases[day].items():
+            casesSoFar = 0
+
+            if country in coronaCasesTotalSoFar:
+                casesSoFar = coronaCasesTotalSoFar[country]
+            
+            coronaCasesTotalToday[country] = casesSoFar + casesToday
+
+        for country, deathsToday in coronaDeaths[day].items():
+            deathsSoFar = 0
+
+            if country in coronaDeathsTotalSoFar:
+                deathsSoFar = coronaDeathsTotalSoFar[country]
+            
+            coronaDeathsTotalToday[country] = deathsSoFar + deathsToday
+        
+        coronaCasesTotal[day] = coronaCasesTotalToday
+        coronaDeathsTotal[day] = coronaDeathsTotalToday
+        coronaCasesTotalSoFar = coronaCasesTotalToday
+        coronaDeathsTotalSoFar = coronaDeathsTotalToday
 
     # Generate maps
     draw.generateMaps(coronaCases, legendUnits = "Neue Coronafälle pro Tag", targetFolder = "../out/maps/cases/")
     draw.generateMaps(coronaDeaths, legendUnits = "Neue Coronatodesfälle pro Tag", targetFolder = "../out/maps/deaths/")
+    draw.generateMaps(coronaCasesTotal, legendUnits = "Coronafälle gesamt", targetFolder = "../out/maps/casesTotal/")
+    draw.generateMaps(coronaDeathsTotal, legendUnits = "Coronatodesfälle gesamt", targetFolder = "../out/maps/deathsTotal/")
 
     # Generate GIFs
-    log.printProgressBar(0, 2, "Generating GIFs. Current GIF: covid-19 cases")
+    log.printProgressBar(0, 4, "Generating GIFs. Current GIF: covid-19 cases")
     caseMapFiles = map(lambda date: "../out/maps/cases/" + date.replace('/', '-') + ".png", sortedDates)
     draw.generateGIF("../out/maps/cases.gif", caseMapFiles)
     
-    log.printProgressBar(1, 2, "Generating GIFs. Current GIF: covid-19 deaths")
+    log.printProgressBar(1, 4, "Generating GIFs. Current GIF: covid-19 deaths")
     deathMapFiles = map(lambda date: "../out/maps/deaths/" + date.replace('/', '-') + ".png", sortedDates)
     draw.generateGIF("../out/maps/deaths.gif", deathMapFiles)
 
-    log.printProgressBar(2, 2, "Generating GIFs. Done!")
+    log.printProgressBar(2, 4, "Generating GIFs. Current GIF: covid-19 cases total")
+    totalCaseMapFiles = map(lambda date: "../out/maps/casesTotal/" + date.replace('/', '-') + ".png", sortedDates)
+    draw.generateGIF("../out/maps/casesTotal.gif", totalCaseMapFiles)
+    
+    log.printProgressBar(3, 4, "Generating GIFs. Current GIF: covid-19 deaths total")
+    totalDeathMapFiles = map(lambda date: "../out/maps/deathsTotal/" + date.replace('/', '-') + ".png", sortedDates)
+    draw.generateGIF("../out/maps/deathsTotal.gif", totalDeathMapFiles)
+
+    log.printProgressBar(4, 4, "Generating GIFs. Done!")
