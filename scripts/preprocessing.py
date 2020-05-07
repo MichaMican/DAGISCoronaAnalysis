@@ -213,5 +213,23 @@ def generateCoronaCaseWorldMaps(coronaCasesByDay):
         coronaCases[day] = getGroupedValues(coronaCasesOnDay, "cases", "countryCode")
         coronaDeaths[day] = getGroupedValues(coronaCasesOnDay, "deaths", "countryCode")
 
+    # Generate maps
     draw.generateMaps(coronaCases, legendUnits = "New covid-19 cases", targetFolder = "../out/maps/cases/")
     draw.generateMaps(coronaDeaths, legendUnits = "New covid-19 deaths", targetFolder = "../out/maps/deaths/")
+
+    # Generate GIFs
+    def dateToSortableNumber(dateString):
+        (day, month, year) = dateString.split('/')
+        return int(year + month + day) # 01/01/2020 -> 20200101
+    
+    sortedDates = sorted(coronaCases.keys(), key=dateToSortableNumber)
+    
+    log.printProgressBar(0, 2, "Generating GIFs. Current GIF: covid-19 cases")
+    caseMapFiles = map(lambda date: "../out/maps/cases/" + date.replace('/', '-') + ".png", sortedDates)
+    draw.generateGIF("../out/maps/cases.gif", caseMapFiles)
+    
+    log.printProgressBar(1, 2, "Generating GIFs. Current GIF: covid-19 deaths")
+    deathMapFiles = map(lambda date: "../out/maps/deaths/" + date.replace('/', '-') + ".png", sortedDates)
+    draw.generateGIF("../out/maps/deaths.gif", deathMapFiles)
+
+    log.printProgressBar(2, 2, "Generating GIFs. Done!")
