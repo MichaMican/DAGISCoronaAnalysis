@@ -107,11 +107,11 @@ def convertCasesDeathsToTotalCases(coronaCasesDataDict):
 
             if len(totalDeaths) > 0:
                 totalDeaths.append(totalDeaths[-1] + int(coronaCasesDaily["deaths"]))
-                coronaCasesDaily["totalDeaths"] = totalCases[-1]
+                coronaCasesDaily["totalDeaths"] = totalDeaths[-1]
 
             else:
                 totalDeaths.append(int(coronaCasesDaily["deaths"]))
-                coronaCasesDaily["totalDeaths"] = totalCases[-1]
+                coronaCasesDaily["totalDeaths"] = totalDeaths[-1]
 
     return convertedDict
 
@@ -150,9 +150,27 @@ def generateGiniCoronaMap(coronaCasesDataDict, newestGiniCoefficientDict, popula
             if countryKey in newestGiniCoefficientDict.keys() and countryKey in populationOfYear.keys():
                 dataForMapCase[dayCaseOfCountry["date"]][countryKey] = newestGiniCoefficientDict[countryKey]["value"]/100 * (dayCaseOfCountry["totalCases"]/(populationOfYear[countryKey] * 1000)) * 100000
                 dataForMapDeaths[dayCaseOfCountry["date"]][countryKey] = newestGiniCoefficientDict[countryKey]["value"]/100 * (dayCaseOfCountry["totalDeaths"]/(populationOfYear[countryKey] * 1000)) * 100000
+            else:
+                if countryKey not in newestGiniCoefficientDict.keys():
+                    log.log(countryKey + " is not in newestGiniCoeffDict")
+                if countryKey not in populationOfYear.keys():
+                    log.log(countryKey + " is not in populationOfYear")
+
+    sortedDates = sorted(dataForMapDeaths.keys(), key=__dateToSortableNumber)
 
     draw.generateMaps(dataForMapCase, colorMap = 'coolwarm', targetFolder = "../out/maps/giniCaseCoef/", legendUnits = "Ginikoeffizient * Coronafälle pro 100.000 Einwohner")
     draw.generateMaps(dataForMapDeaths, colorMap = 'coolwarm', targetFolder = "../out/maps/giniDeathCoef/", legendUnits = "Ginikoeffizient * Coronatodesfälle pro 100.000 Einwohner")
+
+
+    log.printProgressBar(0, 2, "Generating GIFs. Current GIF: GiniCoronaCases")
+    caseMapFiles = map(lambda date: "../out/maps/giniCaseCoef/" + date.replace('/', '-') + ".png", sortedDates)
+    draw.generateGIF("../out/maps/giniCoronaCases.gif", caseMapFiles)
+
+    log.printProgressBar(1, 2, "Generating GIFs. Current GIF: GiniCoronaDeaths")
+    caseMapFiles = map(lambda date: "../out/maps/giniCaseCoef/" + date.replace('/', '-') + ".png", sortedDates)
+    draw.generateGIF("../out/maps/giniCoronaDeaths.gif", caseMapFiles)
+
+
 
 def getNewestGiniCoefficientDict(giniDataDictionary):
     returnDict = {}
