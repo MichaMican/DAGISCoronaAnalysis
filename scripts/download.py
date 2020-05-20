@@ -80,10 +80,8 @@ def downloadGoogleTrendsData(geoIdArray):
         geoIdForGoolge = geoId
 
         #special cases
-        if geoId == "UK":
+        if geoId == "GB":
             geoIdForGoolge = "GB-ENG"
-        if geoId == "EL":
-            geoIdForGoolge = "GR"
 
         if(geoIdForGoolge != "" and geoIdForGoolge != None and geoIdForGoolge != "N/A"):
             try:
