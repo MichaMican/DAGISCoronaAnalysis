@@ -45,9 +45,9 @@ def downloadGiniCoefficient():
         os.remove(path + "WorldBankGiniIndex.csv")
 
     for filename in os.listdir(path):
-        if(filename == "API_SI.POV.GINI_DS2_en_csv_v2_988343.csv"):
+        if(filename == "API_SI.POV.GINI_DS2_en_csv_v2_1068836.csv"):
             try:
-                os.rename(path + "API_SI.POV.GINI_DS2_en_csv_v2_988343.csv", path + "WorldBankGiniIndex.csv")
+                os.rename(path + "API_SI.POV.GINI_DS2_en_csv_v2_1068836.csv", path + "WorldBankGiniIndex.csv")
             except Exception as error:
                 log.logError("Renaming failed - Error: " + str(error))
         else:
